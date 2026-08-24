@@ -196,9 +196,17 @@ a pass.
 Issues and pull requests are welcome, particularly from people who file BEAD reports and
 can say where the schemas are wrong. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## License
+## License and use
 
 [Apache-2.0](LICENSE). Copyright 2026 Yicheng Li. See [NOTICE](NOTICE).
+
+Use it commercially, embed it in a product, fork it, or implement the schemas in another
+language without asking. No attribution negotiation, no contributor licence agreement, no
+per-seat terms. A format meant to sit between three parties cannot be one that any of them
+has to seek permission to adopt.
+
+The JSON Schemas are the normative artifact and stand on their own. Nothing here obliges an
+adopter to run this implementation, or to use Python at all.
 
 ## About
 
