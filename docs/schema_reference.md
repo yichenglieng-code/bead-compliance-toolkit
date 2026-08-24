@@ -506,15 +506,15 @@ population a location is judged against, which is why the field carries no defau
 
 | Code | Name | Covers |
 |---|---|---|
-| `0` | Other | Any fixed technology not covered by another code |
-| `10` | Copper wire | DSL, ethernet over copper, T-1 |
-| `40` | Coaxial cable / HFC | DOCSIS and hybrid fiber-coaxial |
-| `50` | Fiber to the premises | Fiber to the home or business; excludes fiber to the curb |
-| `60` | Geostationary satellite | Fixed service over geostationary orbit |
-| `61` | Non-geostationary satellite | Fixed service over low or medium earth orbit |
-| `70` | Unlicensed terrestrial fixed wireless | Entirely unlicensed spectrum |
-| `71` | Licensed terrestrial fixed wireless | Entirely licensed spectrum, or a hybrid including licensed-by-rule |
-| `72` | Licensed-by-rule terrestrial fixed wireless | CBRS general authorized access and similar |
+| `0` | other | Any fixed technology not covered by another code |
+| `10` | copper wire | DSL, ethernet over copper, T-1 |
+| `40` | coax hfc | DOCSIS and hybrid fiber-coaxial |
+| `50` | fiber to premises | Fiber to the home or business; excludes fiber to the curb |
+| `60` | geostationary satellite | Fixed service over geostationary orbit |
+| `61` | nongeostationary satellite | Fixed service over low or medium earth orbit |
+| `70` | unlicensed fixed wireless | Entirely unlicensed spectrum |
+| `71` | licensed fixed wireless | Entirely licensed spectrum, or a hybrid including licensed-by-rule |
+| `72` | licensed by rule fixed wireless | CBRS general authorized access and similar |
 
 Next-generation fixed wireless access deployments generally fall under `70`, `71`,
 or `72`, depending on spectrum.

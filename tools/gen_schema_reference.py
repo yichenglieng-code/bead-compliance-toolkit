@@ -26,6 +26,7 @@ from bead_data.models import MODELS  # noqa: E402
 from bead_data.schemas import (  # noqa: E402
     FACT_KINDS,
     SCHEMA_VERSION,
+    TECHNOLOGY_CODES,
     load_provenance_schema,
     load_schema,
 )
@@ -36,25 +37,14 @@ TARGET = REPO / "docs" / "schema_reference.md"
 # locations those facts attach to, then the BABA provenance for the hardware.
 KIND_ORDER = ["performance", "location", "baba"]
 
-TECHNOLOGY_CODES = [
-    ("0", "Other", "Any fixed technology not covered by another code"),
-    ("10", "Copper wire", "DSL, ethernet over copper, T-1"),
-    ("40", "Coaxial cable / HFC", "DOCSIS and hybrid fiber-coaxial"),
-    ("50", "Fiber to the premises", "Fiber to the home or business; excludes fiber to the curb"),
-    ("60", "Geostationary satellite", "Fixed service over geostationary orbit"),
-    ("61", "Non-geostationary satellite", "Fixed service over low or medium earth orbit"),
-    ("70", "Unlicensed terrestrial fixed wireless", "Entirely unlicensed spectrum"),
-    (
-        "71",
-        "Licensed terrestrial fixed wireless",
-        "Entirely licensed spectrum, or a hybrid including licensed-by-rule",
-    ),
-    (
-        "72",
-        "Licensed-by-rule terrestrial fixed wireless",
-        "CBRS general authorized access and similar",
-    ),
-]
+
+def technology_rows() -> list[tuple[str, str, str]]:
+    """Render the FCC code table from its single source of truth in schemas.py."""
+    return [
+        (str(code), name.replace("_", " "), covers)
+        for code, (name, covers) in sorted(TECHNOLOGY_CODES.items())
+    ]
+
 
 CROSS_FIELD_RULES = [
     (
@@ -287,7 +277,7 @@ def build() -> str:
         "| Code | Name | Covers |",
         "|---|---|---|",
     ]
-    lines += [f"| `{code}` | {name} | {covers} |" for code, name, covers in TECHNOLOGY_CODES]
+    lines += [f"| `{code}` | {name} | {covers} |" for code, name, covers in technology_rows()]
     lines += [
         "",
         "Next-generation fixed wireless access deployments generally fall under `70`, `71`,",

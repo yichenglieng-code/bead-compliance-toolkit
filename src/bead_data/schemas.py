@@ -19,6 +19,41 @@ from pathlib import Path
 
 SCHEMA_VERSION = "0.1.0"
 
+#: FCC fixed technology codes, keyed by code: (short name, what it covers).
+#:
+#: Single source of truth for the code table. The schemas constrain the enum, the
+#: generated field reference renders this, and the metrics exporter uses the names
+#: as label values so a dashboard legend reads "licensed_fixed_wireless" rather
+#: than "71".
+TECHNOLOGY_CODES: dict[int, tuple[str, str]] = {
+    0: ("other", "Any fixed technology not covered by another code"),
+    10: ("copper_wire", "DSL, ethernet over copper, T-1"),
+    40: ("coax_hfc", "DOCSIS and hybrid fiber-coaxial"),
+    50: ("fiber_to_premises", "Fiber to the home or business; excludes fiber to the curb"),
+    60: ("geostationary_satellite", "Fixed service over geostationary orbit"),
+    61: ("nongeostationary_satellite", "Fixed service over low or medium earth orbit"),
+    70: ("unlicensed_fixed_wireless", "Entirely unlicensed spectrum"),
+    71: (
+        "licensed_fixed_wireless",
+        "Entirely licensed spectrum, or a hybrid including licensed-by-rule",
+    ),
+    72: (
+        "licensed_by_rule_fixed_wireless",
+        "CBRS general authorized access and similar",
+    ),
+}
+
+#: Codes used by next-generation fixed wireless access builds, which differ only
+#: by spectrum licensing.
+NGFWA_TECHNOLOGY_CODES: tuple[int, ...] = (70, 71, 72)
+
+
+def technology_name(code: int) -> str:
+    """Short, label-safe name for an FCC fixed technology code."""
+    entry = TECHNOLOGY_CODES.get(code)
+    return entry[0] if entry else f"unknown_{code}"
+
+
 _PROVENANCE_ID = (
     "https://raw.githubusercontent.com/yichenglieng-code/bead-compliance-toolkit"
     "/main/schemas/common/v0/provenance.schema.json"
