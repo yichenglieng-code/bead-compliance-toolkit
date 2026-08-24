@@ -125,3 +125,24 @@ def test_signature_fields_are_required_and_unique() -> None:
                 continue
             overlap = spec.signature_fields & other_spec.signature_fields
             assert not overlap, f"{kind} and {other} share signature fields {overlap}"
+
+
+def test_schema_reference_doc_is_current() -> None:
+    """docs/schema_reference.md is generated; a stale copy misleads adopters.
+
+    Worse than no reference doc is one that disagrees with the schemas, because
+    someone will build against it. Regenerate with:
+        python tools/gen_schema_reference.py
+    """
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    repo = Path(__file__).resolve().parents[1]
+    result = subprocess.run(
+        [sys.executable, str(repo / "tools" / "gen_schema_reference.py"), "--check"],
+        capture_output=True,
+        text=True,
+        cwd=repo,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr

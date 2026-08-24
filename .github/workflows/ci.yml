@@ -36,6 +36,11 @@ jobs:
       - name: ruff format
         run: ruff format --check .
 
+      # docs/schema_reference.md is generated from the schemas. A stale copy is
+      # worse than none, because adopters build against it.
+      - name: Schema reference is current
+        run: python tools/gen_schema_reference.py --check
+
   test:
     name: Test (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
