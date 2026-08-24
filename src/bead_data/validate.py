@@ -193,7 +193,7 @@ def _nest_row(row: dict[str, str], types: dict[str, str]) -> dict[str, Any]:
 
 
 def load_records(path: Path, kind: str | None = None) -> tuple[list[dict], str]:
-    """Load records from a ``.json`` or ``.csv`` file.
+    """Load records from a ``.json``, ``.csv``, or ``.parquet`` file.
 
     Args:
         path: File to read.
@@ -228,6 +228,16 @@ def load_records(path: Path, kind: str | None = None) -> tuple[list[dict], str]:
         resolved = kind or detect_kind(records, path)
         return records, resolved
 
+    if suffix == ".parquet":
+        from bead_data.convert import read_parquet
+
+        try:
+            records = read_parquet(path)
+        except Exception as exc:  # pyarrow raises a variety of types
+            raise InputError(f"{path}: could not read Parquet: {exc}") from exc
+        resolved = kind or detect_kind(records, path)
+        return records, resolved
+
     if suffix == ".csv":
         try:
             with path.open(encoding="utf-8-sig", newline="") as fh:
@@ -245,7 +255,7 @@ def load_records(path: Path, kind: str | None = None) -> tuple[list[dict], str]:
         records = [_nest_row(row, types) for row in rows]
         return records, resolved
 
-    raise InputError(f"{path}: unsupported file type {suffix!r}; expected .json or .csv")
+    raise InputError(f"{path}: unsupported file type {suffix!r}; expected .json, .csv, or .parquet")
 
 
 def detect_kind(records: list[dict], path: Path | None = None) -> str:
