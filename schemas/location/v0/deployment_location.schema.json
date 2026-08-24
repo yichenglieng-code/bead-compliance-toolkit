@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/yichenglieng-code/bead-compliance-toolkit/main/schemas/location/v0/deployment_location.schema.json",
+  "title": "Deployment Location",
+  "description": "One BEAD-funded location and where it sits in the build lifecycle. Rationale: BEAD money is awarded and accounted for at the location level, keyed to the FCC Broadband Serviceable Location Fabric, and buildout progress rolls up from locations through the subgrantee to the state broadband office and then to NTIA in semiannual reports. This schema is the shared unit for that roll-up, and it is also the join key for performance facts, which reference a location through location_ref.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "location_id",
+    "state_or_territory",
+    "latitude",
+    "longitude",
+    "service_status",
+    "technology_code",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.1.0",
+      "description": "Version of this schema the record claims to conform to."
+    },
+    "location_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "FCC Broadband Serviceable Location (BSL) Location ID from the FCC Location Fabric. Each BSL in the Fabric is a single point, defined by coordinates falling within a structure's footprint, carrying a unique Commission-issued Location ID. Synthetic examples in this repository use an obviously fake BSL- prefix so that no real address is implied.",
+      "examples": [
+        "BSL-1002003004"
+      ]
+    },
+    "state_or_territory": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}$",
+      "description": "Two-letter USPS code. NTIA evaluates and reports per state or territory."
+    },
+    "latitude": {
+      "type": "number",
+      "minimum": -90,
+      "maximum": 90,
+      "description": "Decimal degrees. Should match the Fabric point for location_id."
+    },
+    "longitude": {
+      "type": "number",
+      "minimum": -180,
+      "maximum": 180,
+      "description": "Decimal degrees. Should match the Fabric point for location_id."
+    },
+    "service_status": {
+      "type": "string",
+      "enum": [
+        "planned",
+        "under_construction",
+        "installed",
+        "active",
+        "suspended"
+      ],
+      "description": "Where this location sits in the build lifecycle. Distinguishing installed (service available at the location) from active (a subscriber is taking service) matters for BEAD reporting, because NTIA sample sizes are computed from active subscribers rather than from passed locations."
+    },
+    "install_date": {
+      "type": "string",
+      "format": "date",
+      "description": "ISO 8601 date on which service became available at this location. Required when service_status is installed or active, because a location cannot be reported as built without a build date to substantiate milestone progress."
+    },
+    "technology_code": {
+      "type": "integer",
+      "enum": [
+        0,
+        10,
+        40,
+        50,
+        60,
+        61,
+        70,
+        71,
+        72
+      ],
+      "description": "FCC fixed technology code for the technology serving this location. See the performance_fact schema for the full code list. Deliberately carries no default: NTIA separates sample sets by technology code, so the code decides which population a location is judged against. Next-generation fixed wireless access builds use 70 for entirely unlicensed spectrum, 71 for licensed spectrum, or 72 for licensed-by-rule spectrum such as CBRS general authorized access, and defaulting to any one of the three would silently mislabel the other two."
+    },
+    "max_advertised_down_mbps": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Optional maximum advertised download speed in Mbps offered at this location."
+    },
+    "max_advertised_up_mbps": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Optional maximum advertised upload speed in Mbps offered at this location."
+    },
+    "is_cai": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this location is a community anchor institution, which carries the 1 Gbps symmetric NTIA service standard instead of 100/20 Mbps."
+    },
+    "active_subscriber_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Optional count of active subscribers at this location. Feeds NTIA sample-size determination, which tests 5 locations when a sample population has 50 or fewer active subscribers, at least 10 percent when it has 51 through 500, and 50 locations once it exceeds 500."
+    },
+    "provenance": {
+      "$ref": "https://raw.githubusercontent.com/yichenglieng-code/bead-compliance-toolkit/main/schemas/common/v0/provenance.schema.json"
+    }
+  }
+}
