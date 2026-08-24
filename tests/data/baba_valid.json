@@ -1,0 +1,49 @@
+[
+  {
+    "schema_version": "0.1.0",
+    "evidence_id": "1d9d2e1a-2b4f-4e88-9a1d-3f5b8e7c0a12",
+    "compliance_path": "domestic_certification",
+    "component": "Example FWA Base Node B200",
+    "component_type": "device",
+    "component_description": "Sector base node terminating fixed wireless subscriber links at a tower site.",
+    "product_category": "radio",
+    "manufacturer_name": "Example Broadband Equipment Co.",
+    "origin_country": "US",
+    "quantity": 24,
+    "manufacturing_location": "Austin, Texas, United States",
+    "certification_ref": "CERT-2026-0417-A",
+    "requirement_ref": "BEAD BABA waiver, Section III.A.2.a (Electronics)",
+    "certifying_representative": "VP of Operations",
+    "bead_project_ref": "NV-BEAD-2026-014",
+    "attestation_doc_sha256": "3b1f2c4d5e6a7b8c9d0e1f2a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e",
+    "provenance": {
+      "source_org": "Example Broadband Equipment Co.",
+      "collected_by": "compliance-exporter",
+      "collected_at": "2026-08-01T04:00:00Z",
+      "tool": "bead-data 0.1.0"
+    }
+  },
+  {
+    "schema_version": "0.1.0",
+    "evidence_id": "2e8c3f66-4c2d-4b09-9e11-5a9c0d8b6e34",
+    "compliance_path": "waiver",
+    "component": "Example Aggregation Switch S48",
+    "component_type": "device",
+    "component_description": "48-port aggregation switch backhauling tower sites to the regional core.",
+    "product_category": "switch",
+    "manufacturer_name": "Example Networking Systems Inc.",
+    "origin_country": "VN",
+    "quantity": 6,
+    "waiver_ref": "BEAD-BABA-WAIVER-2024-02-23",
+    "waiver_type": "general_applicability",
+    "hs_code_10": "8517620090",
+    "product_identifier": "EX-S48-AGG",
+    "bead_project_ref": "NV-BEAD-2026-014",
+    "provenance": {
+      "source_org": "Example Rural ISP",
+      "collected_by": "compliance-exporter",
+      "collected_at": "2026-08-01T04:00:00Z",
+      "tool": "bead-data 0.1.0"
+    }
+  }
+]
