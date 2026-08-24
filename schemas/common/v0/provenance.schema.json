@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/yichenglieng-code/bead-compliance-toolkit/main/schemas/common/v0/provenance.schema.json",
+  "title": "Provenance",
+  "description": "Who produced a compliance fact, with what, and when. Required on every fact in this toolkit. Rationale: NTIA requires BEAD subgrantees to document the methodology, standards, and parameters used to produce performance evidence, to supply that documentation with each submission alongside a change log of material changes, and to certify the accuracy of what is reported. Evidence that travels between a manufacturer, an ISP, and a state broadband office is only auditable if it carries its own origin.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "source_org",
+    "collected_by",
+    "collected_at"
+  ],
+  "properties": {
+    "source_org": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Organization that produced the fact (manufacturer, ISP/subgrantee, or testing vendor).",
+      "examples": [
+        "Example Rural ISP"
+      ]
+    },
+    "collected_by": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Person or system identifier that produced the fact. Prefer a system or service name over a named individual so records can be published without exposing personal data.",
+      "examples": [
+        "mfg-exporter",
+        "field-telemetry-collector"
+      ]
+    },
+    "collected_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 date-time at which the fact was produced."
+    },
+    "tool": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Producing tool and version. Supports the NTIA transparency requirement to describe the software and systems used in testing.",
+      "examples": [
+        "bead-data 0.1.0"
+      ]
+    },
+    "methodology_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Pointer to the published testing methodology, standards, and parameters this fact was produced under. NTIA requires subgrantees to publish testing methodology on their network management practices page; this field links a fact to that disclosure.",
+      "examples": [
+        "https://example-isp.example/network-management-practices#bead-testing-v3"
+      ]
+    }
+  }
+}
