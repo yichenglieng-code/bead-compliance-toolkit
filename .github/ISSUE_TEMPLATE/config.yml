@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: How requirements are sourced
+    url: https://github.com/yichenglieng-code/bead-compliance-toolkit/blob/main/docs/sources.md
+    about: Every encoded NTIA, FCC, and USAC requirement, with its primary source and known gaps.
+  - name: Contributing guide
+    url: https://github.com/yichenglieng-code/bead-compliance-toolkit/blob/main/CONTRIBUTING.md
+    about: Ground rules, including never attaching real subscriber or location data.
