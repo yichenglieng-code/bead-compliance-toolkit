@@ -147,7 +147,7 @@ def test_exit_two_on_unsupported_suffix(run, tmp_path) -> None:
 def test_exit_two_on_empty_directory(run, tmp_path) -> None:
     result = run("validate", str(tmp_path))
     assert result.exit_code == EXIT_USAGE
-    assert "no .json or .csv files found" in result.output
+    assert "no .json, .csv, or .parquet files found" in result.output
 
 
 def test_exit_two_on_undetectable_schema(run, tmp_path) -> None:
@@ -181,3 +181,123 @@ def test_help_and_version(run) -> None:
 def test_bad_schema_choice_is_rejected(run, data_dir) -> None:
     result = run("validate", str(data_dir / "performance_valid.json"), "--schema", "nonsense")
     assert result.exit_code != EXIT_OK
+
+
+# --------------------------------------------------------------------- convert
+
+
+def test_convert_to_csv_on_stdout(run, data_dir) -> None:
+    result = run("convert", str(data_dir / "performance_valid.json"), "--to", "csv")
+    assert result.exit_code == EXIT_OK, result.output
+    assert result.output.splitlines()[0].startswith("schema_version,fact_id,")
+
+
+def test_convert_to_json_on_stdout(run, data_dir) -> None:
+    result = run("convert", str(data_dir / "performance_valid.csv"), "--to", "json")
+    assert result.exit_code == EXIT_OK, result.output
+    parsed = json.loads(result.output)
+    assert isinstance(parsed, list)
+    assert len(parsed) == 2
+
+
+def test_convert_writes_a_file(run, data_dir, tmp_path) -> None:
+    target = tmp_path / "nested" / "out.csv"
+    result = run(
+        "convert", str(data_dir / "performance_valid.json"), "--to", "csv", "-o", str(target)
+    )
+    assert result.exit_code == EXIT_OK, result.output
+    assert target.is_file()
+    assert "wrote 2 record(s)" in result.output
+
+
+def test_convert_to_parquet_requires_output_file(run, data_dir) -> None:
+    result = run("convert", str(data_dir / "performance_valid.json"), "--to", "parquet")
+    assert result.exit_code == EXIT_USAGE
+    assert "binary" in result.output
+
+
+def test_convert_writes_parquet(run, data_dir, tmp_path) -> None:
+    target = tmp_path / "out.parquet"
+    result = run(
+        "convert", str(data_dir / "performance_valid.json"), "--to", "parquet", "-o", str(target)
+    )
+    assert result.exit_code == EXIT_OK, result.output
+    assert target.is_file()
+
+
+def test_convert_refuses_invalid_input_and_writes_nothing(
+    run, tmp_path, performance_record
+) -> None:
+    """A bad batch must fail on the submitter's machine, not at the state office."""
+    source = tmp_path / "bad.json"
+    source.write_text(json.dumps([{**performance_record, "uptime_pct": 101}]), encoding="utf-8")
+    target = tmp_path / "out.csv"
+
+    result = run("convert", str(source), "--to", "csv", "-o", str(target))
+    assert result.exit_code == EXIT_INVALID
+    assert "nothing written" in result.output
+    assert not target.exists()
+
+
+def test_convert_exit_two_on_unreadable_input(run, data_dir) -> None:
+    result = run("convert", str(data_dir / "malformed.json"), "--to", "json")
+    assert result.exit_code == EXIT_USAGE
+
+
+# ---------------------------------------------------------------------- report
+
+
+def test_report_on_a_directory(run, tmp_path, data_dir) -> None:
+    bundle = tmp_path / "bundle"
+    bundle.mkdir()
+    for name in ("performance_valid.json", "location_valid.json", "baba_valid.json"):
+        (bundle / name).write_bytes((data_dir / name).read_bytes())
+
+    result = run("report", str(bundle))
+    assert result.exit_code == EXIT_OK, result.output
+    assert "# BEAD compliance summary" in result.output
+    assert "Performance thresholds by sample set" in result.output
+    assert "BABA evidence coverage" in result.output
+
+
+def test_report_writes_a_file(run, tmp_path, data_dir) -> None:
+    bundle = tmp_path / "bundle"
+    bundle.mkdir()
+    (bundle / "perf.json").write_bytes((data_dir / "performance_valid.json").read_bytes())
+    target = tmp_path / "summary.md"
+
+    result = run("report", str(bundle), "-o", str(target))
+    assert result.exit_code == EXIT_OK, result.output
+    assert target.is_file()
+    assert "# BEAD compliance summary" in target.read_text(encoding="utf-8")
+
+
+def test_report_accepts_period_filters(run, tmp_path, data_dir) -> None:
+    bundle = tmp_path / "bundle"
+    bundle.mkdir()
+    (bundle / "perf.json").write_bytes((data_dir / "performance_valid.json").read_bytes())
+
+    for period in ("2026-Q3", "2026-07"):
+        result = run("report", str(bundle), "--period", period)
+        assert result.exit_code == EXIT_OK, result.output
+
+
+def test_report_rejects_a_bad_period(run, tmp_path, data_dir) -> None:
+    bundle = tmp_path / "bundle"
+    bundle.mkdir()
+    (bundle / "perf.json").write_bytes((data_dir / "performance_valid.json").read_bytes())
+
+    result = run("report", str(bundle), "--period", "2026-Q9")
+    assert result.exit_code == EXIT_USAGE
+    assert "quarter" in result.output
+
+
+def test_report_exit_two_on_missing_directory(run, tmp_path) -> None:
+    result = run("report", str(tmp_path / "absent"))
+    assert result.exit_code == EXIT_USAGE
+    assert "not found" in result.output
+
+
+def test_report_exit_two_on_empty_directory(run, tmp_path) -> None:
+    result = run("report", str(tmp_path))
+    assert result.exit_code == EXIT_USAGE
