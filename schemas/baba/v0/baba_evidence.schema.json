@@ -1,0 +1,230 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/yichenglieng-code/bead-compliance-toolkit/main/schemas/baba/v0/baba_evidence.schema.json",
+  "title": "BABA Evidence",
+  "description": "Build America, Buy America provenance for one component used in a BEAD-funded build. Rationale: NTIA operates a two-part compliance framework, and every component travels down exactly one of two paths. Equipment that requires domestic production is substantiated by a manufacturer's BABA certification letter, furnished to the subgrantee, which the subgrantee retains for the state broadband office or NTIA on request. Equipment covered by a BABA waiver is instead substantiated through a waiver reporting tracker of finished waived electronics, which the subgrantee compiles, shares with the state broadband office, and which reaches NTIA through semiannual reports. The two paths demand genuinely different fields, so this schema makes the path explicit in compliance_path and conditionally requires the fields that path needs.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "evidence_id",
+    "compliance_path",
+    "component",
+    "component_type",
+    "component_description",
+    "manufacturer_name",
+    "origin_country",
+    "quantity",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.1.0",
+      "description": "Version of this schema the record claims to conform to."
+    },
+    "evidence_id": {
+      "type": "string",
+      "format": "uuid",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "description": "UUID v4 uniquely identifying this evidence record."
+    },
+    "compliance_path": {
+      "type": "string",
+      "enum": [
+        "domestic_certification",
+        "waiver"
+      ],
+      "description": "Which NTIA compliance path substantiates this component. Use domestic_certification when the component requires domestic production and is backed by a manufacturer's BABA certification letter. Use waiver when the component is covered by a BABA waiver and is therefore reported through the waiver reporting tracker instead. NTIA states plainly that a certification letter is not needed for waived equipment, so the two paths are mutually exclusive."
+    },
+    "component": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Name of the device, subassembly, or material. Maps to Product Name in the manufacturer certification letter.",
+      "examples": [
+        "Example FWA Remote Node R100"
+      ]
+    },
+    "component_type": {
+      "type": "string",
+      "enum": [
+        "device",
+        "subassembly",
+        "iron_steel",
+        "construction_material",
+        "other"
+      ],
+      "description": "Broad BABA category. BABA reaches iron, steel, manufactured products, and construction materials used in a federally funded infrastructure project. device and subassembly are manufactured products; iron_steel and construction_material carry their own BABA treatment, including a Department-wide public interest waiver for minor components within iron and steel products."
+    },
+    "component_description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Plain-language description of what the component is or does. Both NTIA artifacts require this: the certification letter asks for a product description, and the waiver reporting tracker asks for a common-language description of the product's function.",
+      "examples": [
+        "Outdoor subscriber radio unit terminating the fixed wireless link at the customer premises."
+      ]
+    },
+    "product_category": {
+      "type": "string",
+      "enum": [
+        "router",
+        "switch",
+        "radio",
+        "antenna",
+        "power_system",
+        "optical_transport",
+        "cable",
+        "enclosure",
+        "other"
+      ],
+      "description": "Category of electronic product. Required on the waiver path, where the NTIA reporting tracker asks for the category of electronic product using examples such as router, switch, power system, and radio."
+    },
+    "manufacturer_name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Public legal name of the manufacturer. Required on both paths: the certification letter identifies the certifying manufacturer, and the waiver reporting tracker asks for the name of the manufacturer.",
+      "examples": [
+        "Example Broadband Equipment Co."
+      ]
+    },
+    "origin_country": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}$",
+      "description": "ISO 3166-1 alpha-2 country of origin. Required on both paths. On the waiver path this is the field that gives NTIA visibility into the country of origin of finished waived electronics used in BEAD builds.",
+      "examples": [
+        "US",
+        "MX",
+        "VN"
+      ]
+    },
+    "quantity": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Number of units covered by this evidence record. Required on both paths: the certification letter and the waiver reporting tracker both call for quantity."
+    },
+    "manufacturing_location": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Where manufacturing occurred. Required on the domestic_certification path, where the certification letter must state the location of manufacturing.",
+      "examples": [
+        "Austin, Texas, United States"
+      ]
+    },
+    "certification_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identifier of the manufacturer's BABA certification letter substantiating this component. Required on the domestic_certification path. The subgrantee retains the letter itself in case the state broadband office or NTIA requests it.",
+      "examples": [
+        "CERT-2026-0417-A"
+      ]
+    },
+    "requirement_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Reference to the specific BABA domestic manufacturing requirement being certified against, which is the first key element NTIA lists for the certification letter.",
+      "examples": [
+        "BEAD BABA waiver, Section III.A.2.a (Electronics)"
+      ]
+    },
+    "certifying_representative": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Authorized company representative who signed the certification letter. Prefer a role title over a personal name when this record will be published."
+    },
+    "waiver_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identifier of the BABA waiver covering this component. Required on the waiver path.",
+      "examples": [
+        "BEAD-BABA-WAIVER-2024-02-23"
+      ]
+    },
+    "waiver_type": {
+      "type": "string",
+      "enum": [
+        "public_interest",
+        "nonavailability",
+        "unreasonable_cost",
+        "general_applicability",
+        "de_minimis"
+      ],
+      "description": "Statutory basis for the waiver. The Act contemplates a public interest waiver, a nonavailability waiver where domestic products are not produced in sufficient and reasonably available quantities or satisfactory quality, and an unreasonable cost waiver where domestic sourcing would raise total project cost by more than 25 percent. general_applicability covers program-wide waivers such as the BEAD electronics waiver, and de_minimis covers the Department-wide small-purchase and minor-component waivers."
+    },
+    "hs_code_10": {
+      "type": "string",
+      "pattern": "^[0-9]{10}$",
+      "description": "Ten-digit Harmonized System code. Required on the waiver path, where the NTIA reporting tracker specifies a 10-digit HS code.",
+      "examples": [
+        "8517620090"
+      ]
+    },
+    "product_identifier": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Manufacturer's product identifier, such as a stock keeping unit, product ID, or part number. Required on the waiver path.",
+      "examples": [
+        "EX-RN-R100-US"
+      ]
+    },
+    "bead_project_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Optional identifier of the BEAD project this component was used in, so evidence can be filtered per project during a state broadband office review.",
+      "examples": [
+        "NV-BEAD-2026-014"
+      ]
+    },
+    "attestation_doc_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "Optional SHA-256 digest, lowercase hex, of the underlying certification letter or waiver document. Lets a reviewer confirm that the retained document is the one this record describes, without the document having to travel alongside the record."
+    },
+    "attestation_doc_uri": {
+      "type": "string",
+      "format": "uri",
+      "description": "Optional URI where the underlying document is retained."
+    },
+    "provenance": {
+      "$ref": "https://raw.githubusercontent.com/yichenglieng-code/bead-compliance-toolkit/main/schemas/common/v0/provenance.schema.json"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "compliance_path": {
+            "const": "domestic_certification"
+          }
+        },
+        "required": [
+          "compliance_path"
+        ]
+      },
+      "then": {
+        "required": [
+          "certification_ref",
+          "manufacturing_location"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "compliance_path": {
+            "const": "waiver"
+          }
+        },
+        "required": [
+          "compliance_path"
+        ]
+      },
+      "then": {
+        "required": [
+          "waiver_ref",
+          "hs_code_10",
+          "product_identifier",
+          "product_category"
+        ]
+      }
+    }
+  ]
+}
