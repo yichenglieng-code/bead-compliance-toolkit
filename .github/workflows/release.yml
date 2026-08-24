@@ -1,0 +1,80 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build distributions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install build
+
+      - name: Build sdist and wheel
+        run: python -m build
+
+      # The schemas are normative, and a release that ships without them installs a
+      # package that cannot validate anything. Cheap to check, expensive to miss.
+      - name: Wheel must contain the normative schemas
+        run: |
+          python - <<'PY'
+          import glob, sys, zipfile
+          wheel = glob.glob("dist/*.whl")[0]
+          found = sorted(
+              n for n in zipfile.ZipFile(wheel).namelist() if n.endswith(".schema.json")
+          )
+          for name in found:
+              print(name)
+          if len(found) != 4:
+              sys.exit(f"expected 4 schemas in {wheel}, found {len(found)}")
+          PY
+
+      - name: Install the wheel in a clean environment and smoke test it
+        run: |
+          python -m venv /tmp/verify
+          /tmp/verify/bin/pip install --quiet dist/*.whl
+          /tmp/verify/bin/bead-data --version
+          /tmp/verify/bin/python - <<'PY'
+          from bead_data.schemas import load_schema, schemas_root
+          root = str(schemas_root())
+          assert "_schemas" in root, f"schemas resolved outside the package: {root}"
+          assert load_schema("performance")["title"] == "Performance Fact"
+          print("packaged schemas resolve correctly")
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: distributions
+          path: dist/
+
+  publish:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: distributions
+          path: dist/
+
+      # Trusted publishing: no API token is stored in this repository. Configure the
+      # publisher once at pypi.org/manage/account/publishing/ against this repo,
+      # workflow file name, and the "pypi" environment.
+      - uses: pypa/gh-action-pypi-publish@release/v1
