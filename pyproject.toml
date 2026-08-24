@@ -1,0 +1,69 @@
+[build-system]
+requires = ["hatchling>=1.25.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "bead-data"
+version = "0.1.0"
+description = "Open, NTIA-aligned data schemas and reference tooling for BEAD broadband compliance evidence."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Yicheng Li" }]
+keywords = [
+    "bead",
+    "broadband",
+    "ntia",
+    "baba",
+    "compliance",
+    "fixed-wireless",
+    "json-schema",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Telecommunications Industry",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+dependencies = [
+    "pydantic>=2.9,<3",
+    "jsonschema>=4.23,<5",
+    "click>=8.1,<9",
+    "pandas>=2.2,<3",
+    "pyarrow>=17,<18",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3,<9",
+    "ruff>=0.6.9,<0.7",
+]
+
+[project.urls]
+Homepage = "https://github.com/yichenglieng-code/bead-compliance-toolkit"
+Repository = "https://github.com/yichenglieng-code/bead-compliance-toolkit"
+Issues = "https://github.com/yichenglieng-code/bead-compliance-toolkit/issues"
+
+[project.scripts]
+bead-data = "bead_data.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/bead_data"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"schemas" = "bead_data/_schemas"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "C4"]
