@@ -1,0 +1,190 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/yichenglieng-code/bead-compliance-toolkit/main/schemas/performance/v0/performance_fact.schema.json",
+  "title": "Performance Fact",
+  "description": "One funded location's network performance over one measurement period, carrying both the observed central values and the per-test counts that BEAD compliance is actually judged on. Rationale: NTIA judges BEAD last-mile performance on four thresholds evaluated over populations of discrete tests, not on averages. Speed compliance requires that 80 percent of download measurements land at or above 80 percent of the required download speed, and separately the same for upload. Latency compliance requires that 95 percent or more of round-trip latency measurements land at or below 100 milliseconds. Availability compliance requires that average outage time stay under 48 hours across a 365-day period, which corresponds to roughly 99.45 percent uptime. A record that reports only mean speed and mean latency cannot answer any of those four questions, so this schema carries the numerator and denominator for each.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "fact_id",
+    "location_ref",
+    "state_or_territory",
+    "technology_code",
+    "committed_down_mbps",
+    "committed_up_mbps",
+    "period_start",
+    "period_end",
+    "download_mbps",
+    "upload_mbps",
+    "latency_ms_mean",
+    "uptime_pct",
+    "measurement_method",
+    "device_class",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.1.0",
+      "description": "Version of this schema the record claims to conform to."
+    },
+    "fact_id": {
+      "type": "string",
+      "format": "uuid",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "description": "UUID v4 uniquely identifying this fact. Lets the same fact be de-duplicated after passing through a manufacturer, an ISP, and a state broadband office."
+    },
+    "location_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identifier of the BEAD location this measurement belongs to. For BEAD submissions this is the FCC Broadband Serviceable Location (BSL) Location ID from the FCC Location Fabric: NTIA directs that because funded locations have no High Cost Universal Broadband (HUBB) Location ID, the BSL identifier occupies the first column of the submitted results file. Synthetic examples in this repository use an obviously fake BSL- prefix.",
+      "examples": [
+        "BSL-1002003004"
+      ]
+    },
+    "state_or_territory": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}$",
+      "description": "Two-letter USPS code for the state or territory. Required because NTIA evaluates compliance and draws sample sets per state or territory, so facts cannot be pooled across state lines.",
+      "examples": [
+        "NV",
+        "MO",
+        "CA"
+      ]
+    },
+    "technology_code": {
+      "type": "integer",
+      "enum": [
+        0,
+        10,
+        40,
+        50,
+        60,
+        61,
+        70,
+        71,
+        72
+      ],
+      "description": "FCC fixed technology code for the technology serving this location. NTIA requires locations to be sampled separately per technology, and treats technologies as different when their FCC technology codes differ. Codes: 0 other, 10 copper wire, 40 coaxial cable or HFC, 50 fiber to the premises, 60 geostationary satellite, 61 non-geostationary satellite, 70 unlicensed terrestrial fixed wireless, 71 licensed terrestrial fixed wireless, 72 licensed-by-rule terrestrial fixed wireless. Next-generation fixed wireless access deployments generally fall under 70, 71, or 72."
+    },
+    "committed_down_mbps": {
+      "type": "number",
+      "minimum": 100,
+      "description": "Committed download speed tier in Mbps for this project, from the subgrantee agreement. Floor of 100 comes from the NTIA definition of committed speed tier, which may not be less than 100 Mbps down and 20 Mbps up. Required speed is the greater of this value and 100."
+    },
+    "committed_up_mbps": {
+      "type": "number",
+      "minimum": 20,
+      "description": "Committed upload speed tier in Mbps for this project, from the subgrantee agreement. Floor of 20 comes from the NTIA definition of committed speed tier."
+    },
+    "period_start": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 start of the measurement period. NTIA expects speed and latency testing across a one-week window, by default once per year."
+    },
+    "period_end": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 end of the measurement period. Must be at or after period_start."
+    },
+    "download_mbps": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Mean observed download speed in Mbps across successful tests in the period. Informational: NTIA compliance is decided by download_tests_meeting_threshold, not by this mean."
+    },
+    "upload_mbps": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Mean observed upload speed in Mbps across successful tests in the period. Informational, as with download_mbps."
+    },
+    "latency_ms_mean": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Mean observed round-trip latency in milliseconds across latency tests in the period. Informational: NTIA compliance is decided by latency_tests_at_or_below_100ms."
+    },
+    "latency_ms_loaded": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Optional mean round-trip latency in milliseconds measured under load. NTIA removed the cross-traffic waiver for latency testing, so loaded latency is meaningful to record even though the compliance threshold does not distinguish it."
+    },
+    "download_tests_total": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Count of download tests observed in the period, including tests that failed to meet the threshold. NTIA forbids deleting, trimming, editing, or excluding test measurements, so this denominator should reflect every test."
+    },
+    "download_tests_meeting_threshold": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Count of download tests at or above 80 percent of the required download speed. Must not exceed download_tests_total. Compliance needs this to be at least 80 percent of the total."
+    },
+    "upload_tests_total": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Count of upload tests observed in the period. Upload and download are counted separately and each must independently satisfy the 80/80 standard."
+    },
+    "upload_tests_meeting_threshold": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Count of upload tests at or above 80 percent of the required upload speed. Must not exceed upload_tests_total."
+    },
+    "latency_tests_total": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Count of latency tests observed in the period. NTIA requires lost-packet tests to be recorded and counted as discrete tests that do not meet the standard, so they belong in this denominator rather than being discarded."
+    },
+    "latency_tests_at_or_below_100ms": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Count of latency tests with round-trip time at or below 100 milliseconds. Must not exceed latency_tests_total. Compliance needs this to be at least 95 percent of the total."
+    },
+    "uptime_pct": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Observed availability for the period, as a percentage. The NTIA availability standard of no more than 48 outage hours over any 365-day period corresponds to about 99.45 percent."
+    },
+    "outage_hours_365d": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Optional but recommended: total bona fide outage hours over the trailing 365 days. This is the quantity NTIA actually evaluates, with a threshold of 48 hours. Excluded from the total are published standing maintenance windows, scheduled maintenance announced to affected customers in advance, subscriber power failures, subscriber disconnection of equipment, and periods covered by an FCC Disaster Information Reporting System activation or a FEMA declared disaster."
+    },
+    "measurement_method": {
+      "type": "string",
+      "enum": [
+        "cwmp_tr069",
+        "tr369_usp",
+        "gateway_software",
+        "ont_cpe_builtin",
+        "dedicated_measurement_device",
+        "other"
+      ],
+      "description": "How the measurement was taken. NTIA requires active measurement, meaning devices or software sending packets to servers at the edge of the provider network, rather than readings drawn from classical network management systems. Permitted approaches: standardized CPE WAN Management Protocols TR-069 (cwmp_tr069) and TR-369 User Services Platform (tr369_usp), software on a supplied residential gateway (gateway_software), capability built into an optical network terminal or other customer premises equipment (ont_cpe_builtin), or a dedicated measurement device installed at the subscriber location (dedicated_measurement_device). NTIA encourages the gateway and CPE options because they impose no subscriber burden and need no subscriber consent, whereas separate measurement hardware does require consent."
+    },
+    "device_class": {
+      "type": "string",
+      "enum": [
+        "base_node",
+        "remote_node",
+        "cpe",
+        "other"
+      ],
+      "description": "Vendor-neutral class of equipment serving the location. Deliberately generic so that no vendor product naming leaks into an interchange format meant to be adopted sector-wide."
+    },
+    "sample_set_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Optional grouping key for the sample set this fact belongs to. An NTIA sample set is the collection of test subjects within one state or territory, served by one provider, on one technology, under one committed speed tier. Compliance is evaluated per sample set, so carrying the grouping key makes aggregation reproducible.",
+      "examples": [
+        "NV-71-100x20-2026"
+      ]
+    },
+    "is_cai": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this location is a community anchor institution. CAIs carry a different NTIA service standard of 1 Gbps download and 1 Gbps upload, rather than the 100/20 Mbps standard for broadband serviceable locations."
+    },
+    "provenance": {
+      "$ref": "https://raw.githubusercontent.com/yichenglieng-code/bead-compliance-toolkit/main/schemas/common/v0/provenance.schema.json"
+    }
+  }
+}
