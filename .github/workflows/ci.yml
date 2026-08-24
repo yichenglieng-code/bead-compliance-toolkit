@@ -101,6 +101,11 @@ jobs:
             echo "examples/ not present yet; skipping"
           fi
 
+      - name: Report and metrics run end to end
+        run: |
+          bead-data report examples --period 2026-Q3 > /dev/null
+          bead-data metrics examples --period 2026-Q3 > /dev/null
+
       - name: Documented invalid example must fail with exit code 1
         run: |
           if [ -f examples/synthetic_factory_export.invalid.csv ]; then

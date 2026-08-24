@@ -66,7 +66,8 @@ Each field is documented with the reporting rationale behind it in
 here is cited to its primary NTIA, FCC, or USAC source in
 [`docs/sources.md`](docs/sources.md) — nothing about federal requirements is asserted
 here on this project's own authority. The longer argument for the project is in
-[`docs/why.md`](docs/why.md).
+[`docs/why.md`](docs/why.md), and the upstream manufacturing context is in
+[`docs/patterns/factory_test_orchestration.md`](docs/patterns/factory_test_orchestration.md).
 
 ## Install
 
@@ -161,12 +162,33 @@ is in [`examples/walkthrough.md`](examples/walkthrough.md).
    `docs/patterns/` as the path up, not required on the way in.
 6. **Synthetic examples only.** No real subscriber or location data ships here, ever.
 
+### Feed a dashboard
+
+```bash
+bead-data metrics path/to/evidence/ --period 2026-Q3
+```
+
+Emits the same numbers in Prometheus exposition format, so the threshold verdicts can
+drive an alert instead of a document:
+
+```text
+bead_sample_set_compliant{sample_set="NV-72-100x20",technology="licensed_by_rule_fixed_wireless"} 0
+bead_upload_pass_ratio{sample_set="NV-72-100x20"} 0.595238
+```
+
+A Grafana dashboard, Prometheus alert rules, and an OpenTelemetry collector config are in
+[`dashboards/`](dashboards/README.md). Alerting on `bead_sample_set_compliant == 0` is the
+rule worth having, because it fires while there is still time to respond.
+
+Note that a missing series is not a zero: a threshold with no data reported emits no
+sample at all, rather than a 0 that would read as total failure or a 1 that would read as
+a pass.
+
 ## Roadmap
 
 - Emitter for the USAC PMM CSV format that NTIA designates for actual submission
-- Grafana dashboard and OpenTelemetry examples over the performance schema
-- Factory test orchestration pattern documentation
 - Sampling validation: whether the sample size matches the active subscriber count
+- Publication to a public package registry
 - Bindings in additional languages, if there is demand for them
 
 ## Contributing
