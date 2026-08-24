@@ -18,6 +18,7 @@ from pathlib import Path
 import click
 
 from bead_data.convert import FORMATS, ConversionError, render, to_parquet
+from bead_data.metrics import metrics_for
 from bead_data.report import ReportError, build_report
 from bead_data.schemas import FACT_KINDS
 from bead_data.validate import (
@@ -202,6 +203,51 @@ def convert_cmd(path: str, fmt: str, output: str | None, kind: str | None) -> No
             click.echo(f"error: could not write {output}: {exc}", err=True)
             sys.exit(EXIT_USAGE)
         click.echo(f"wrote {len(records)} record(s) to {output}", err=True)
+    else:
+        click.echo(text, nl=False)
+
+    sys.exit(EXIT_OK)
+
+
+@main.command("metrics")
+@click.argument("path", type=click.Path())
+@click.option(
+    "--period",
+    default=None,
+    help="Reporting period as YYYY-MM or YYYY-QN. All periods when omitted.",
+)
+@click.option(
+    "-o",
+    "--output",
+    "output",
+    type=click.Path(),
+    default=None,
+    help="Write the exposition to a file instead of stdout.",
+)
+def metrics_cmd(path: str, period: str | None, output: str | None) -> None:
+    """Emit compliance metrics in Prometheus exposition format.
+
+    Same numbers as `report`, shaped for a dashboard or an alert rule. Pair with
+    the Grafana dashboard in dashboards/, which consumes these metric names.
+
+    Alerting on bead_sample_set_compliant == 0 surfaces a failing sample set while
+    there is still time to fix it.
+    """
+    try:
+        text = metrics_for(Path(path), period)
+    except (InputError, ReportError) as exc:
+        click.echo(f"error: {exc}", err=True)
+        sys.exit(EXIT_USAGE)
+
+    if output:
+        try:
+            target = Path(output)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(text, encoding="utf-8")
+        except OSError as exc:
+            click.echo(f"error: could not write {output}: {exc}", err=True)
+            sys.exit(EXIT_USAGE)
+        click.echo(f"wrote metrics to {output}", err=True)
     else:
         click.echo(text, nl=False)
 
