@@ -1,0 +1,113 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: ruff check
+        run: ruff check .
+
+      - name: ruff format
+        run: ruff format --check .
+
+  test:
+    name: Test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: pytest
+        run: pytest -q
+
+  acceptance:
+    name: Fresh-clone acceptance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      # The README promises that a fresh clone can install and validate. This job
+      # is what keeps that promise honest, since it is the first thing an adopter
+      # tries and the first thing that would embarrass the project if it broke.
+      - name: Install from a clean checkout
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Validate the golden files
+        run: |
+          bead-data validate tests/data/performance_valid.json
+          bead-data validate tests/data/performance_valid.csv
+          bead-data validate tests/data/location_valid.json
+          bead-data validate tests/data/baba_valid.json
+
+      - name: Validate the published examples
+        run: |
+          if [ -d examples ]; then
+            bead-data validate examples/synthetic_field_telemetry.json
+            bead-data validate examples/synthetic_factory_export.csv
+            bead-data validate examples/synthetic_baba_bundle
+            bead-data validate examples/synthetic_locations.json
+          else
+            echo "examples/ not present yet; skipping"
+          fi
+
+      - name: Documented invalid example must fail with exit code 1
+        run: |
+          if [ -f examples/synthetic_factory_export.invalid.csv ]; then
+            set +e
+            bead-data validate examples/synthetic_factory_export.invalid.csv
+            code=$?
+            set -e
+            if [ "$code" -ne 1 ]; then
+              echo "expected exit code 1 from the deliberately invalid example, got $code"
+              exit 1
+            fi
+            echo "deliberately invalid example correctly exited 1"
+          else
+            echo "invalid example not present yet; skipping"
+          fi
