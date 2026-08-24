@@ -1,0 +1,25 @@
+{
+  "schema_version": "0.1.0",
+  "evidence_id": "f0f6aa6c-3596-4928-aa91-100c1825b1a4",
+  "compliance_path": "domestic_certification",
+  "component": "Example FWA Base Node B200",
+  "component_type": "device",
+  "component_description": "Sector base node terminating fixed wireless subscriber links at a tower site.",
+  "product_category": "radio",
+  "manufacturer_name": "Example Broadband Equipment Co.",
+  "origin_country": "US",
+  "quantity": 24,
+  "manufacturing_location": "Austin, Texas, United States",
+  "certification_ref": "CERT-2026-1347",
+  "requirement_ref": "BEAD BABA waiver, Section III.A.2.a (Electronics)",
+  "certifying_representative": "VP of Operations",
+  "bead_project_ref": "NV-BEAD-2026-014",
+  "attestation_doc_sha256": "99b00f981713a970e2cc570200660c3ce01ea8927de9e747654b159d9dd91ab8",
+  "attestation_doc_uri": "https://example-equipment.example/baba/base_node_b200-cert.pdf",
+  "provenance": {
+    "source_org": "Example Broadband Equipment Co.",
+    "collected_by": "compliance-exporter",
+    "collected_at": "2026-08-01T04:00:00Z",
+    "tool": "bead-data 0.1.0"
+  }
+}

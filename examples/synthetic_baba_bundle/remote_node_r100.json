@@ -1,0 +1,25 @@
+{
+  "schema_version": "0.1.0",
+  "evidence_id": "f960229b-a34c-49c2-a0da-397ffa2b7be6",
+  "compliance_path": "domestic_certification",
+  "component": "Example FWA Remote Node R100",
+  "component_type": "device",
+  "component_description": "Outdoor subscriber radio unit terminating the fixed wireless link at the premises.",
+  "product_category": "radio",
+  "manufacturer_name": "Example Broadband Equipment Co.",
+  "origin_country": "US",
+  "quantity": 310,
+  "manufacturing_location": "Austin, Texas, United States",
+  "certification_ref": "CERT-2026-5287",
+  "requirement_ref": "BEAD BABA waiver, Section III.A.2.a (Electronics)",
+  "certifying_representative": "VP of Operations",
+  "bead_project_ref": "NV-BEAD-2026-014",
+  "attestation_doc_sha256": "a2935d474887e49e403125de2bd079ab67e8da230ed648a920654f20c1633a15",
+  "attestation_doc_uri": "https://example-equipment.example/baba/remote_node_r100-cert.pdf",
+  "provenance": {
+    "source_org": "Example Broadband Equipment Co.",
+    "collected_by": "compliance-exporter",
+    "collected_at": "2026-08-01T04:00:00Z",
+    "tool": "bead-data 0.1.0"
+  }
+}

@@ -1,0 +1,272 @@
+[
+  {
+    "schema_version": "0.1.0",
+    "location_id": "BSL-100203000",
+    "state_or_territory": "NV",
+    "latitude": 39.3553,
+    "longitude": -119.7351,
+    "service_status": "active",
+    "technology_code": 72,
+    "max_advertised_down_mbps": 300.0,
+    "max_advertised_up_mbps": 50.0,
+    "is_cai": false,
+    "provenance": {
+      "source_org": "Example Rural ISP",
+      "collected_by": "deployment-tracker",
+      "collected_at": "2026-08-01T04:00:00Z",
+      "tool": "bead-data 0.1.0"
+    },
+    "install_date": "2026-06-27",
+    "active_subscriber_count": 1
+  },
+  {
+    "schema_version": "0.1.0",
+    "location_id": "BSL-100203001",
+    "state_or_territory": "NV",
+    "latitude": 39.3751,
+    "longitude": -119.8005,
+    "service_status": "active",
+    "technology_code": 71,
+    "max_advertised_down_mbps": 300.0,
+    "max_advertised_up_mbps": 50.0,
+    "is_cai": false,
+    "provenance": {
+      "source_org": "Example Rural ISP",
+      "collected_by": "deployment-tracker",
+      "collected_at": "2026-08-01T04:00:00Z",
+      "tool": "bead-data 0.1.0"
+    },
+    "install_date": "2026-06-10",
+    "active_subscriber_count": 1
+  },
+  {
+    "schema_version": "0.1.0",
+    "location_id": "BSL-100203002",
+    "state_or_territory": "NV",
+    "latitude": 39.4914,
+    "longitude": -119.794,
+    "service_status": "active",
+    "technology_code": 71,
+    "max_advertised_down_mbps": 300.0,
+    "max_advertised_up_mbps": 50.0,
+    "is_cai": false,
+    "provenance": {
+      "source_org": "Example Rural ISP",
+      "collected_by": "deployment-tracker",
+      "collected_at": "2026-08-01T04:00:00Z",
+      "tool": "bead-data 0.1.0"
+    },
+    "install_date": "2026-03-20",
+    "active_subscriber_count": 1
+  },
+  {
+    "schema_version": "0.1.0",
+    "location_id": "BSL-100203003",
+    "state_or_territory": "NV",
+    "latitude": 39.3295,
+    "longitude": -119.5369,
+    "service_status": "active",
+    "technology_code": 72,
+    "max_advertised_down_mbps": 300.0,
+    "max_advertised_up_mbps": 50.0,
+    "is_cai": false,
+    "provenance": {
+      "source_org": "Example Rural ISP",
+      "collected_by": "deployment-tracker",
+      "collected_at": "2026-08-01T04:00:00Z",
+      "tool": "bead-data 0.1.0"
+    },
+    "install_date": "2026-06-23",
+    "active_subscriber_count": 1
+  },
+  {
+    "schema_version": "0.1.0",
+    "location_id": "BSL-100203004",
+    "state_or_territory": "NV",
+    "latitude": 39.2191,
+    "longitude": -119.7426,
+    "service_status": "active",
+    "technology_code": 71,
+    "max_advertised_down_mbps": 300.0,
+    "max_advertised_up_mbps": 50.0,
+    "is_cai": false,
+    "provenance": {
+      "source_org": "Example Rural ISP",
+      "collected_by": "deployment-tracker",
+      "collected_at": "2026-08-01T04:00:00Z",
+      "tool": "bead-data 0.1.0"
+    },
+    "install_date": "2026-05-11",
+    "active_subscriber_count": 1
+  },
+  {
+    "schema_version": "0.1.0",
+    "location_id": "BSL-100203005",
+    "state_or_territory": "NV",
+    "latitude": 39.2804,
+    "longitude": -119.8025,
+    "service_status": "active",
+    "technology_code": 71,
+    "max_advertised_down_mbps": 300.0,
+    "max_advertised_up_mbps": 50.0,
+    "is_cai": false,
+    "provenance": {
+      "source_org": "Example Rural ISP",
+      "collected_by": "deployment-tracker",
+      "collected_at": "2026-08-01T04:00:00Z",
+      "tool": "bead-data 0.1.0"
+    },
+    "install_date": "2026-05-18",
+    "active_subscriber_count": 1
+  },
+  {
+    "schema_version": "0.1.0",
+    "location_id": "BSL-100203006",
+    "state_or_territory": "NV",
+    "latitude": 39.2571,
+    "longitude": -119.8992,
+    "service_status": "installed",
+    "technology_code": 72,
+    "max_advertised_down_mbps": 300.0,
+    "max_advertised_up_mbps": 50.0,
+    "is_cai": false,
+    "provenance": {
+      "source_org": "Example Rural ISP",
+      "collected_by": "deployment-tracker",
+      "collected_at": "2026-08-01T04:00:00Z",
+      "tool": "bead-data 0.1.0"
+    },
+    "install_date": "2026-03-10",
+    "active_subscriber_count": 0
+  },
+  {
+    "schema_version": "0.1.0",
+    "location_id": "BSL-100203007",
+    "state_or_territory": "NV",
+    "latitude": 39.1616,
+    "longitude": -119.6609,
+    "service_status": "installed",
+    "technology_code": 71,
+    "max_advertised_down_mbps": 300.0,
+    "max_advertised_up_mbps": 50.0,
+    "is_cai": false,
+    "provenance": {
+      "source_org": "Example Rural ISP",
+      "collected_by": "deployment-tracker",
+      "collected_at": "2026-08-01T04:00:00Z",
+      "tool": "bead-data 0.1.0"
+    },
+    "install_date": "2026-06-26",
+    "active_subscriber_count": 0
+  },
+  {
+    "schema_version": "0.1.0",
+    "location_id": "BSL-100203008",
+    "state_or_territory": "NV",
+    "latitude": 39.4326,
+    "longitude": -119.7695,
+    "service_status": "installed",
+    "technology_code": 71,
+    "max_advertised_down_mbps": 300.0,
+    "max_advertised_up_mbps": 50.0,
+    "is_cai": false,
+    "provenance": {
+      "source_org": "Example Rural ISP",
+      "collected_by": "deployment-tracker",
+      "collected_at": "2026-08-01T04:00:00Z",
+      "tool": "bead-data 0.1.0"
+    },
+    "install_date": "2026-03-19",
+    "active_subscriber_count": 0
+  },
+  {
+    "schema_version": "0.1.0",
+    "location_id": "BSL-100203009",
+    "state_or_territory": "NV",
+    "latitude": 39.1338,
+    "longitude": -119.8431,
+    "service_status": "under_construction",
+    "technology_code": 72,
+    "max_advertised_down_mbps": 300.0,
+    "max_advertised_up_mbps": 50.0,
+    "is_cai": false,
+    "provenance": {
+      "source_org": "Example Rural ISP",
+      "collected_by": "deployment-tracker",
+      "collected_at": "2026-08-01T04:00:00Z",
+      "tool": "bead-data 0.1.0"
+    }
+  },
+  {
+    "schema_version": "0.1.0",
+    "location_id": "BSL-100203010",
+    "state_or_territory": "NV",
+    "latitude": 39.2187,
+    "longitude": -119.886,
+    "service_status": "under_construction",
+    "technology_code": 71,
+    "max_advertised_down_mbps": 300.0,
+    "max_advertised_up_mbps": 50.0,
+    "is_cai": false,
+    "provenance": {
+      "source_org": "Example Rural ISP",
+      "collected_by": "deployment-tracker",
+      "collected_at": "2026-08-01T04:00:00Z",
+      "tool": "bead-data 0.1.0"
+    }
+  },
+  {
+    "schema_version": "0.1.0",
+    "location_id": "BSL-100203011",
+    "state_or_territory": "NV",
+    "latitude": 39.1353,
+    "longitude": -119.8573,
+    "service_status": "planned",
+    "technology_code": 71,
+    "max_advertised_down_mbps": 300.0,
+    "max_advertised_up_mbps": 50.0,
+    "is_cai": false,
+    "provenance": {
+      "source_org": "Example Rural ISP",
+      "collected_by": "deployment-tracker",
+      "collected_at": "2026-08-01T04:00:00Z",
+      "tool": "bead-data 0.1.0"
+    }
+  },
+  {
+    "schema_version": "0.1.0",
+    "location_id": "BSL-100203012",
+    "state_or_territory": "NV",
+    "latitude": 39.2362,
+    "longitude": -119.6975,
+    "service_status": "planned",
+    "technology_code": 72,
+    "max_advertised_down_mbps": 300.0,
+    "max_advertised_up_mbps": 50.0,
+    "is_cai": false,
+    "provenance": {
+      "source_org": "Example Rural ISP",
+      "collected_by": "deployment-tracker",
+      "collected_at": "2026-08-01T04:00:00Z",
+      "tool": "bead-data 0.1.0"
+    }
+  },
+  {
+    "schema_version": "0.1.0",
+    "location_id": "BSL-100203013",
+    "state_or_territory": "NV",
+    "latitude": 39.204,
+    "longitude": -119.7217,
+    "service_status": "suspended",
+    "technology_code": 71,
+    "max_advertised_down_mbps": 300.0,
+    "max_advertised_up_mbps": 50.0,
+    "is_cai": false,
+    "provenance": {
+      "source_org": "Example Rural ISP",
+      "collected_by": "deployment-tracker",
+      "collected_at": "2026-08-01T04:00:00Z",
+      "tool": "bead-data 0.1.0"
+    }
+  }
+]

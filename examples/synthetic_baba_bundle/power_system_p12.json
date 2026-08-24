@@ -1,0 +1,25 @@
+{
+  "schema_version": "0.1.0",
+  "evidence_id": "286b23ed-7d63-4838-b845-bc7e4339e001",
+  "compliance_path": "domestic_certification",
+  "component": "Example Tower Power System P12",
+  "component_type": "device",
+  "component_description": "DC power plant and battery backup for tower-mounted radio equipment.",
+  "product_category": "power_system",
+  "manufacturer_name": "Example Broadband Equipment Co.",
+  "origin_country": "US",
+  "quantity": 8,
+  "manufacturing_location": "Austin, Texas, United States",
+  "certification_ref": "CERT-2026-2337",
+  "requirement_ref": "BEAD BABA waiver, Section III.A.2.a (Electronics)",
+  "certifying_representative": "VP of Operations",
+  "bead_project_ref": "NV-BEAD-2026-014",
+  "attestation_doc_sha256": "e89a27220523c35647772dd72e450c9a9bb60146a40e082a5febcfb7c03c0a26",
+  "attestation_doc_uri": "https://example-equipment.example/baba/power_system_p12-cert.pdf",
+  "provenance": {
+    "source_org": "Example Broadband Equipment Co.",
+    "collected_by": "compliance-exporter",
+    "collected_at": "2026-08-01T04:00:00Z",
+    "tool": "bead-data 0.1.0"
+  }
+}

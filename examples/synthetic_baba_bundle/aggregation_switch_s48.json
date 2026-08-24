@@ -1,0 +1,23 @@
+{
+  "schema_version": "0.1.0",
+  "evidence_id": "1c90e1e4-4cf1-4b42-bcd3-915f60281ab9",
+  "compliance_path": "waiver",
+  "component": "Example Aggregation Switch S48",
+  "component_type": "device",
+  "component_description": "48-port aggregation switch backhauling tower sites to the regional core.",
+  "product_category": "switch",
+  "manufacturer_name": "Example Networking Systems Inc.",
+  "origin_country": "VN",
+  "quantity": 6,
+  "waiver_ref": "BEAD-BABA-WAIVER-2024-02-23",
+  "waiver_type": "general_applicability",
+  "hs_code_10": "8517620090",
+  "product_identifier": "EX-S48-AGG",
+  "bead_project_ref": "NV-BEAD-2026-014",
+  "provenance": {
+    "source_org": "Example Rural ISP",
+    "collected_by": "compliance-exporter",
+    "collected_at": "2026-08-01T04:00:00Z",
+    "tool": "bead-data 0.1.0"
+  }
+}

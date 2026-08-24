@@ -1,0 +1,25 @@
+{
+  "schema_version": "0.1.0",
+  "evidence_id": "5236d390-3342-4df7-9315-f0f6721bce9a",
+  "compliance_path": "domestic_certification",
+  "component": "Example Outdoor Enclosure E30",
+  "component_type": "device",
+  "component_description": "Weather-rated equipment cabinet housing tower-site electronics.",
+  "product_category": "enclosure",
+  "manufacturer_name": "Example Broadband Equipment Co.",
+  "origin_country": "US",
+  "quantity": 8,
+  "manufacturing_location": "Austin, Texas, United States",
+  "certification_ref": "CERT-2026-2690",
+  "requirement_ref": "BEAD BABA waiver, Section III.A.2.a (Electronics)",
+  "certifying_representative": "VP of Operations",
+  "bead_project_ref": "NV-BEAD-2026-014",
+  "attestation_doc_sha256": "99738420f3e1f8c51d2fdd981d0cda92cd77591b491ed2c8c3626a67a64f2b62",
+  "attestation_doc_uri": "https://example-equipment.example/baba/enclosure_e30-cert.pdf",
+  "provenance": {
+    "source_org": "Example Broadband Equipment Co.",
+    "collected_by": "compliance-exporter",
+    "collected_at": "2026-08-01T04:00:00Z",
+    "tool": "bead-data 0.1.0"
+  }
+}
