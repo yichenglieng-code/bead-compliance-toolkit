@@ -69,6 +69,27 @@ jobs:
       - name: pytest
         run: pytest -q
 
+  conformance-typescript:
+    name: Conformance (TypeScript binding)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # The claim is that the schemas are the artifact and Python is one binding.
+      # An independent implementation passing the same vectors is what makes that
+      # checkable rather than merely stated.
+      - name: Install
+        working-directory: bindings/typescript
+        run: npm install --no-audit --no-fund
+
+      - name: Run the conformance suite
+        working-directory: bindings/typescript
+        run: npm run conformance
+
   acceptance:
     name: Fresh-clone acceptance
     runs-on: ubuntu-latest
@@ -110,6 +131,19 @@ jobs:
         run: |
           bead-data report examples --period 2026-Q3 > /dev/null
           bead-data metrics examples --period 2026-Q3 > /dev/null
+
+      # The full chain a subgrantee would actually run: raw observations in,
+      # compliance verdicts and submission files out.
+      - name: Raw observations aggregate, report, and submit
+        run: |
+          bead-data validate examples/synthetic_raw_tests.json --schema test
+          bead-data aggregate examples/synthetic_raw_tests.json -o /tmp/derived.json
+          bead-data validate /tmp/derived.json --schema performance
+          mkdir -p /tmp/chain && cp /tmp/derived.json /tmp/chain/
+          bead-data report /tmp/chain --period 2026-Q3 > /dev/null
+          bead-data submit examples/synthetic_raw_tests.json -d /tmp/usac
+          test -f /tmp/usac/MANIFEST.md
+          ls /tmp/usac/*.csv
 
       - name: Documented invalid example must fail with exit code 1
         run: |
