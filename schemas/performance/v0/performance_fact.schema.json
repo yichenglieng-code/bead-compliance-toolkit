@@ -143,6 +143,11 @@
       "maximum": 100,
       "description": "Observed availability for the period, as a percentage. The NTIA availability standard of no more than 48 outage hours over any 365-day period corresponds to about 99.45 percent."
     },
+    "tests_not_run_total": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Optional count of test attempts that did not produce a measurement, across all directions. NTIA permits deferring a speed test when consumer cross-traffic exceeds 10 percent of the committed speed in the relevant direction, and permits reporting that no test completed in a testing hour for that reason. Such an attempt is not a failed measurement, so it is excluded from the threshold denominators, but recording it separately keeps the exclusion visible rather than silent."
+    },
     "outage_hours_365d": {
       "type": "number",
       "minimum": 0,
