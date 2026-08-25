@@ -148,6 +148,21 @@ A narrated end-to-end pass — manufacturer export, ISP merge, state office revi
 including a worked example where the average looks fine and the sample set still fails —
 is in [`examples/walkthrough.md`](examples/walkthrough.md).
 
+## Implementing this in another language
+
+The schemas are the artifact; this Python package is the first binding, not the
+definition. To check an implementation in any language, use the
+[conformance suite](conformance/README.md) — 69 plain-JSON test vectors stating an
+instance, whether it must validate, and which fields a conforming implementation
+should blame when it does not.
+
+The cross-field rules are what it pins hardest, because they are the ones most likely
+to be implemented inconsistently or skipped: a passing test count exceeding its total,
+a location reported as built with no build date, BABA evidence carrying both
+compliance paths or neither path's required fields.
+
+The suite found three defects in this implementation on its first run.
+
 ## Design principles
 
 1. **One format between three parties.** A manufacturer, an ISP, and a state office

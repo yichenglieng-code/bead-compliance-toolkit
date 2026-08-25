@@ -41,6 +41,11 @@ jobs:
       - name: Schema reference is current
         run: python tools/gen_schema_reference.py --check
 
+      # The conformance suite is the contract offered to other implementations. A
+      # stale copy would misrepresent it.
+      - name: Conformance suite is current
+        run: python tools/gen_conformance.py --check
+
   test:
     name: Test (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
