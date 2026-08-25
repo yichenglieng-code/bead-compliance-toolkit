@@ -328,12 +328,57 @@ class Corpus:
     performance: list[dict] = field(default_factory=list)
     location: list[dict] = field(default_factory=list)
     baba: list[dict] = field(default_factory=list)
+    test: list[dict] = field(default_factory=list)
     files_read: int = 0
     invalid_records: int = 0
     skipped_files: list[str] = field(default_factory=list)
+    notes: list[str] = field(default_factory=list)
 
     def add(self, kind: str, records: list[dict]) -> None:
         getattr(self, kind).extend(records)
+
+    def resolve_performance(self) -> list[dict]:
+        """Performance facts to evaluate, aggregating any raw observations.
+
+        Raw test observations are rolled up automatically so that a directory of
+        measurements yields verdicts without a separate step.
+
+        Where a location has both raw observations and an asserted fact, the derived
+        one wins. That is not arbitrary: derived counts cannot understate a
+        denominator, because both sides are counted from the same observations, while
+        an asserted count is only as good as whatever produced it. The substitution is
+        recorded in ``notes`` rather than done silently.
+        """
+        if not self.test:
+            return list(self.performance)
+
+        from bead_data.aggregate import AggregationError, aggregate_tests
+
+        try:
+            derived = aggregate_tests(self.test)
+        except AggregationError as exc:
+            self.notes.append(f"raw observations could not be aggregated: {exc}")
+            return list(self.performance)
+
+        self.notes.append(
+            f"aggregated {len(self.test)} raw observation(s) into {len(derived)} "
+            f"location fact(s); threshold counts for these are derived, not asserted"
+        )
+
+        derived_locations = {f["location_ref"] for f in derived}
+        overridden = [
+            f["location_ref"]
+            for f in self.performance
+            if f.get("location_ref") in derived_locations
+        ]
+        if overridden:
+            self.notes.append(
+                f"{len(overridden)} asserted fact(s) superseded by facts derived from raw "
+                f"observations for the same location(s): {', '.join(sorted(set(overridden)))}"
+            )
+
+        kept = [f for f in self.performance if f.get("location_ref") not in derived_locations]
+        return kept + derived
 
 
 DATA_SUFFIXES = {".json", ".csv", ".parquet"}
@@ -406,7 +451,7 @@ def render_report(corpus: Corpus, period: str | None = None) -> str:
         start, end, label = parse_period(period)
         window = (start, end)
 
-    facts = [f for f in corpus.performance if in_period(f, window)]
+    facts = [f for f in corpus.resolve_performance() if in_period(f, window)]
 
     lines: list[str] = [
         "# BEAD compliance summary",
@@ -425,6 +470,8 @@ def render_report(corpus: Corpus, period: str | None = None) -> str:
         )
     if corpus.skipped_files:
         lines.append(f"- **Unreadable files skipped:** {len(corpus.skipped_files)}")
+    for note in corpus.notes:
+        lines.append(f"- **Note:** {note}")
 
     lines += [
         "",
@@ -633,7 +680,7 @@ def summarize(root: Path, period: str | None = None) -> dict[str, Any]:
         start, end, label = parse_period(period)
         window = (start, end)
 
-    facts = [f for f in corpus.performance if in_period(f, window)]
+    facts = [f for f in corpus.resolve_performance() if in_period(f, window)]
     sample_sets = group_sample_sets(facts)
 
     return {

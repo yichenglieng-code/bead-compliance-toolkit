@@ -17,10 +17,18 @@ from pathlib import Path
 
 import click
 
+from bead_data.aggregate import AggregationError, aggregate_tests, aggregation_notes
 from bead_data.convert import FORMATS, ConversionError, render, to_parquet
 from bead_data.metrics import metrics_for
 from bead_data.report import ReportError, build_report
 from bead_data.schemas import FACT_KINDS
+from bead_data.submit import (
+    SubmissionError,
+    build_submission,
+    check_testing_hours,
+    safe_filename,
+    submission_manifest,
+)
 from bead_data.validate import (
     InputError,
     ValidationReport,
@@ -206,6 +214,148 @@ def convert_cmd(path: str, fmt: str, output: str | None, kind: str | None) -> No
     else:
         click.echo(text, nl=False)
 
+    sys.exit(EXIT_OK)
+
+
+@main.command("aggregate")
+@click.argument("path", type=click.Path())
+@click.option(
+    "-o",
+    "--output",
+    "output",
+    type=click.Path(),
+    default=None,
+    help="Write the derived facts to a file instead of stdout.",
+)
+@click.option(
+    "--to",
+    "fmt",
+    type=click.Choice(["json", "csv"], case_sensitive=False),
+    default="json",
+    help="Output format.",
+)
+def aggregate_cmd(path: str, output: str | None, fmt: str) -> None:
+    """Derive performance facts from raw test observations.
+
+    Turns per-test records into the per-location, per-period facts that `report`
+    evaluates. The point is that the threshold counts become derived rather than
+    asserted, which makes a filtered denominator arithmetically impossible instead
+    of merely prohibited.
+
+    Notes about what aggregation can and cannot infer are printed to stderr.
+    """
+    source = Path(path)
+
+    try:
+        records, kind = load_records(source, "test")
+    except (InputError, KeyError) as exc:
+        click.echo(f"error: {exc}", err=True)
+        sys.exit(EXIT_USAGE)
+
+    report = validate_records(records, kind, source)
+    if not report.ok:
+        for err in report.errors:
+            click.echo(err.format(), err=True)
+        click.echo(
+            f"error: {report.invalid_count} invalid observation(s); nothing written", err=True
+        )
+        sys.exit(EXIT_INVALID)
+
+    try:
+        facts = aggregate_tests(records)
+    except AggregationError as exc:
+        click.echo(f"error: {exc}", err=True)
+        sys.exit(EXIT_INVALID)
+
+    derived = validate_records(facts, "performance")
+    if not derived.ok:
+        for err in derived.errors:
+            click.echo(f"internal: derived fact invalid: {err.format()}", err=True)
+        sys.exit(EXIT_INVALID)
+
+    for note in aggregation_notes(records, facts):
+        click.echo(f"note: {note}", err=True)
+
+    text = render(facts, "performance", fmt.lower())
+    if output:
+        try:
+            target = Path(output)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(text, encoding="utf-8")
+        except OSError as exc:
+            click.echo(f"error: could not write {output}: {exc}", err=True)
+            sys.exit(EXIT_USAGE)
+        click.echo(f"wrote {len(facts)} fact(s) to {output}", err=True)
+    else:
+        click.echo(text, nl=False)
+
+    sys.exit(EXIT_OK)
+
+
+@main.command("submit")
+@click.argument("path", type=click.Path())
+@click.option(
+    "-d",
+    "--output-dir",
+    "output_dir",
+    type=click.Path(),
+    required=True,
+    help="Directory to write the submission files and manifest into.",
+)
+def submit_cmd(path: str, output_dir: str) -> None:
+    """Build USAC-format submission files from raw test observations.
+
+    NTIA designates the USAC performance measurement CSV templates for submission,
+    with the BSL identifier in the first column and a separate file per technology
+    and committed speed tier.
+
+    Requires raw per-test records. Aggregated facts cannot be expanded back into
+    individual test rows, and inventing them would be fabricating measurements.
+    """
+    source = Path(path)
+
+    try:
+        records, kind = load_records(source, "test")
+    except (InputError, KeyError) as exc:
+        click.echo(f"error: {exc}", err=True)
+        sys.exit(EXIT_USAGE)
+
+    report = validate_records(records, kind, source)
+    if not report.ok:
+        for err in report.errors:
+            click.echo(err.format(), err=True)
+        click.echo(
+            f"error: {report.invalid_count} invalid observation(s); nothing written", err=True
+        )
+        sys.exit(EXIT_INVALID)
+
+    for warning in check_testing_hours(records):
+        click.echo(f"warning: {warning}", err=True)
+
+    try:
+        files = build_submission(records)
+    except SubmissionError as exc:
+        click.echo(f"error: {exc}", err=True)
+        sys.exit(EXIT_INVALID)
+
+    target_dir = Path(output_dir)
+    try:
+        target_dir.mkdir(parents=True, exist_ok=True)
+        for f in files:
+            (target_dir / safe_filename(f.filename)).write_text(f.content, encoding="utf-8")
+        (target_dir / "MANIFEST.md").write_text(submission_manifest(files), encoding="utf-8")
+    except (OSError, SubmissionError) as exc:
+        click.echo(f"error: could not write submission: {exc}", err=True)
+        sys.exit(EXIT_USAGE)
+
+    for f in files:
+        click.echo(f"  {f.filename}  ({f.row_count} rows)", err=True)
+    click.echo(f"wrote {len(files)} submission file(s) and MANIFEST.md to {target_dir}", err=True)
+    click.echo(
+        "MANIFEST.md lists what still has to be supplied by a person, including the "
+        "officer certification and the random selection method.",
+        err=True,
+    )
     sys.exit(EXIT_OK)
 
 
