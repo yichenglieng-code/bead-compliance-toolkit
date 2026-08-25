@@ -126,6 +126,7 @@ class PerformanceFact(BaseModel):
     upload_tests_meeting_threshold: Annotated[int | None, Field(ge=0, default=None)] = None
     latency_tests_total: Annotated[int | None, Field(ge=0, default=None)] = None
     latency_tests_at_or_below_100ms: Annotated[int | None, Field(ge=0, default=None)] = None
+    tests_not_run_total: Annotated[int | None, Field(ge=0, default=None)] = None
     uptime_pct: Annotated[float, Field(ge=0, le=100)]
     outage_hours_365d: Annotated[float | None, Field(ge=0, default=None)] = None
     measurement_method: MeasurementMethod
@@ -292,8 +293,159 @@ class BabaEvidence(BaseModel):
         return self
 
 
+TestType = Literal["download", "upload", "latency"]
+
+TestStatus = Literal["success", "not_run_crosstalk", "not_run_other"]
+
+#: NTIA sets a minimum speed-test duration of 15 seconds.
+MIN_SPEED_TEST_SECONDS = 15
+
+
+class PerformanceTest(BaseModel):
+    """One discrete speed or latency observation, as actually conducted."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: Literal["0.1.0"]
+    test_id: Annotated[str, Field(pattern=UUID4_PATTERN)]
+    location_ref: Annotated[str, Field(min_length=1)]
+    subscriber_ref: Annotated[str | None, Field(min_length=1, default=None)] = None
+    state_or_territory: Annotated[str, Field(pattern=r"^[A-Z]{2}$")]
+    technology_code: TechnologyCode
+    committed_down_mbps: Annotated[float, Field(ge=100)]
+    committed_up_mbps: Annotated[float, Field(ge=20)]
+    test_type: TestType
+    test_status: TestStatus
+    started_at: str
+    ended_at: str | None = None
+    ip_target: Annotated[str | None, Field(min_length=1, default=None)] = None
+    bytes_transferred: Annotated[int | None, Field(ge=0, default=None)] = None
+    latency_ms_rtt: Annotated[float | None, Field(ge=0, default=None)] = None
+    packets_sent: Annotated[int | None, Field(ge=0, default=None)] = None
+    packets_received: Annotated[int | None, Field(ge=0, default=None)] = None
+    measurement_method: MeasurementMethod | None = None
+    device_class: DeviceClass | None = None
+    sample_set_id: Annotated[str | None, Field(min_length=1, default=None)] = None
+    is_cai: bool = False
+    comment: Annotated[str | None, Field(min_length=1, default=None)] = None
+    provenance: Provenance
+
+    @field_validator("started_at", "ended_at")
+    @classmethod
+    def _check_timestamps(cls, v: str | None, info) -> str | None:
+        if v is not None:
+            _parse_datetime(v, info.field_name)
+        return v
+
+    @property
+    def duration_seconds(self) -> float | None:
+        """Observation duration, when both endpoints are present."""
+        if not self.ended_at:
+            return None
+        start = _parse_datetime(self.started_at, "started_at")
+        end = _parse_datetime(self.ended_at, "ended_at")
+        return (end - start).total_seconds()
+
+    @property
+    def throughput_mbps(self) -> float | None:
+        """Throughput in Mbps, derived rather than stored.
+
+        Storing bytes and duration instead of a precomputed figure means whoever
+        consumes the record can reproduce the arithmetic rather than trust it.
+        """
+        if self.bytes_transferred is None:
+            return None
+        duration = self.duration_seconds
+        if not duration or duration <= 0:
+            return None
+        return (self.bytes_transferred * 8) / duration / 1_000_000
+
+    @model_validator(mode="after")
+    def _check_time_order(self) -> PerformanceTest:
+        duration = self.duration_seconds
+        if duration is not None and duration < 0:
+            raise ValueError(
+                f"ended_at ({self.ended_at}) must be at or after started_at ({self.started_at})"
+            )
+        return self
+
+    @model_validator(mode="after")
+    def _check_measurement_present(self) -> PerformanceTest:
+        """A successful test must carry the measurement it claims to have taken."""
+        if self.test_status != "success":
+            return self
+
+        if self.test_type in ("download", "upload"):
+            missing = [
+                name
+                for name in ("bytes_transferred", "ended_at", "ip_target")
+                if getattr(self, name) is None
+            ]
+            if missing:
+                raise ValueError(
+                    f"{', '.join(missing)} is required for a successful " f"{self.test_type} test"
+                )
+        else:
+            missing = [
+                name
+                for name in ("latency_ms_rtt", "packets_sent", "packets_received", "ip_target")
+                if getattr(self, name) is None
+            ]
+            if missing:
+                raise ValueError(f"{', '.join(missing)} is required for a successful latency test")
+        return self
+
+    @model_validator(mode="after")
+    def _check_no_result_when_not_run(self) -> PerformanceTest:
+        """A test that did not run cannot have produced a measurement."""
+        if self.test_status == "success":
+            return self
+        present = [
+            name
+            for name in ("bytes_transferred", "latency_ms_rtt")
+            if getattr(self, name) is not None
+        ]
+        if present:
+            raise ValueError(
+                f"{', '.join(present)} must not be set when test_status is "
+                f"{self.test_status!r}; a test that did not run has no result"
+            )
+        return self
+
+    @model_validator(mode="after")
+    def _check_packets(self) -> PerformanceTest:
+        if (
+            self.packets_sent is not None
+            and self.packets_received is not None
+            and self.packets_received > self.packets_sent
+        ):
+            raise ValueError(
+                f"packets_received ({self.packets_received}) must not exceed "
+                f"packets_sent ({self.packets_sent})"
+            )
+        return self
+
+    @model_validator(mode="after")
+    def _check_speed_test_duration(self) -> PerformanceTest:
+        """NTIA sets a 15 second minimum duration for a speed test.
+
+        A shorter measurement is not a compliant test, and silently accepting one
+        would let a non-compliant methodology produce results that look valid.
+        """
+        if self.test_status != "success" or self.test_type == "latency":
+            return self
+        duration = self.duration_seconds
+        if duration is not None and duration < MIN_SPEED_TEST_SECONDS:
+            raise ValueError(
+                f"ended_at implies a {duration:g}s speed test; NTIA requires a minimum "
+                f"duration of {MIN_SPEED_TEST_SECONDS} seconds"
+            )
+        return self
+
+
 MODELS: dict[str, type[BaseModel]] = {
     "performance": PerformanceFact,
     "location": DeploymentLocation,
     "baba": BabaEvidence,
+    "test": PerformanceTest,
 }

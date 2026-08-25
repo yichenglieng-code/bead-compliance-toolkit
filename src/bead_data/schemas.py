@@ -100,6 +100,12 @@ FACT_KINDS: dict[str, FactKind] = {
         title="BABA Evidence",
         signature_fields=frozenset({"evidence_id", "compliance_path", "component"}),
     ),
+    "test": FactKind(
+        name="test",
+        schema_relpath="performance/v0/performance_test.schema.json",
+        title="Performance Test",
+        signature_fields=frozenset({"test_id", "test_type", "test_status"}),
+    ),
 }
 
 

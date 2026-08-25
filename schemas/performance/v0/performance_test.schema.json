@@ -1,0 +1,230 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/yichenglieng-code/bead-compliance-toolkit/main/schemas/performance/v0/performance_test.schema.json",
+  "title": "Performance Test",
+  "description": "One discrete speed or latency observation, as actually conducted. Rationale: NTIA defines a test as a single discrete observation of speed or latency taken from the customer premises of an active subscriber to a remote server at or reached through an FCC-designated internet exchange point, and designates the USAC performance measurement CSV templates for submission. Those templates are per-test, not per-period. This schema is that level. It matters for a reason beyond format conversion: when the aggregate counts in performance_fact are derived from these records rather than asserted by a submitter, a filtered denominator becomes arithmetically impossible instead of merely prohibited.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "test_id",
+    "location_ref",
+    "state_or_territory",
+    "technology_code",
+    "committed_down_mbps",
+    "committed_up_mbps",
+    "test_type",
+    "test_status",
+    "started_at",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.1.0",
+      "description": "Version of this schema the record claims to conform to."
+    },
+    "test_id": {
+      "type": "string",
+      "format": "uuid",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "description": "UUID v4 uniquely identifying this observation. Assigned where the test runs, so that a retry after a network failure is distinguishable from a genuinely duplicated test."
+    },
+    "location_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "FCC Broadband Serviceable Location (BSL) Location ID of the tested premises. NTIA directs that because funded locations have no HUBB Location ID, the BSL identifier occupies the first column of the submitted results file.",
+      "examples": [
+        "BSL-1002003004"
+      ]
+    },
+    "subscriber_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Optional provider-assigned identifier for the active subscriber at this location, required by the USAC submission templates. Use a pseudonymous key, never a name, account number, or anything else that identifies a person: these records are meant to be publishable, and NTIA's measurement methodology is designed so that testing collects no user data.",
+      "examples": [
+        "SUB-8f21a4"
+      ]
+    },
+    "state_or_territory": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}$",
+      "description": "Two-letter USPS code. Sample sets are drawn and evaluated per state or territory."
+    },
+    "technology_code": {
+      "type": "integer",
+      "enum": [
+        0,
+        10,
+        40,
+        50,
+        60,
+        61,
+        70,
+        71,
+        72
+      ],
+      "description": "FCC fixed technology code for the technology serving this location. Sample sets separate on this field, and NTIA requires a separate submission file per technology and committed speed tier."
+    },
+    "committed_down_mbps": {
+      "type": "number",
+      "minimum": 100,
+      "description": "Committed download speed tier in Mbps. Floor of 100 comes from the NTIA definition of committed speed tier."
+    },
+    "committed_up_mbps": {
+      "type": "number",
+      "minimum": 20,
+      "description": "Committed upload speed tier in Mbps. Floor of 20 comes from the same definition."
+    },
+    "test_type": {
+      "type": "string",
+      "enum": [
+        "download",
+        "upload",
+        "latency"
+      ],
+      "description": "What was measured. Download and upload are separate test types because NTIA counts the two directions separately and each must independently satisfy the speed standard."
+    },
+    "test_status": {
+      "type": "string",
+      "enum": [
+        "success",
+        "not_run_crosstalk",
+        "not_run_other"
+      ],
+      "description": "Outcome of the attempt, mirroring the USAC template's status codes: success, not run because consumer cross-traffic exceeded the threshold, or not run for another reason. NTIA permits deferring a speed test when consumer load exceeds 10 percent of the committed speed in the relevant direction, and permits reporting that no test completed in a testing hour for that reason. Recording the attempt is required either way; a test that was not run is not the same as a test that never existed."
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 start of the observation, with millisecond precision and an explicit UTC offset. NTIA requires testing between 6:00 pm and midnight local time, so the offset is what makes local testing hours checkable.",
+      "examples": [
+        "2026-07-06T19:03:01.123-07:00"
+      ]
+    },
+    "ended_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 end of the observation. Required for a successful speed test, because duration is what converts transferred bytes into a throughput figure."
+    },
+    "ip_target": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Fully qualified host name or address of the remote test server, which must be at or reached by passing through an FCC-designated internet exchange point.",
+      "examples": [
+        "ixp-denver-1.example-isp.example"
+      ]
+    },
+    "bytes_transferred": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total bytes received or sent across all connections or threads during the observation. Required for a successful speed test. Kept as bytes rather than a precomputed throughput figure so that the throughput a consumer derives is reproducible from the record."
+    },
+    "latency_ms_rtt": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Round-trip time in milliseconds, the mean across packets received. Required for a successful latency test."
+    },
+    "packets_sent": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Packets successfully sent. Required for a successful latency test."
+    },
+    "packets_received": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Packets successfully received. Must not exceed packets_sent. Recording this rather than only the round-trip time is what makes packet loss visible: NTIA requires lost-packet tests to be recorded and counted as discrete tests that did not meet the standard, and forbids discarding them."
+    },
+    "measurement_method": {
+      "type": "string",
+      "enum": [
+        "cwmp_tr069",
+        "tr369_usp",
+        "gateway_software",
+        "ont_cpe_builtin",
+        "dedicated_measurement_device",
+        "other"
+      ],
+      "description": "How the observation was taken. NTIA requires active measurement rather than readings drawn from classical network management systems."
+    },
+    "device_class": {
+      "type": "string",
+      "enum": [
+        "base_node",
+        "remote_node",
+        "cpe",
+        "other"
+      ],
+      "description": "Vendor-neutral class of equipment serving the location."
+    },
+    "sample_set_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Optional grouping key for the sample set this observation belongs to."
+    },
+    "is_cai": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this location is a community anchor institution, which carries the 1 Gbps symmetric standard rather than 100/20 Mbps."
+    },
+    "comment": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Optional free-text note, carried through to the USAC template's comment column. NTIA forbids deleting or editing measurements but does allow submitting evidence of test infrastructure failure alongside them, and this is where that explanation belongs."
+    },
+    "provenance": {
+      "$ref": "https://raw.githubusercontent.com/yichenglieng-code/bead-compliance-toolkit/main/schemas/common/v0/provenance.schema.json"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "test_type": {
+            "enum": [
+              "download",
+              "upload"
+            ]
+          },
+          "test_status": {
+            "const": "success"
+          }
+        },
+        "required": [
+          "test_type",
+          "test_status"
+        ]
+      },
+      "then": {
+        "required": [
+          "bytes_transferred",
+          "ended_at",
+          "ip_target"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test_type": {
+            "const": "latency"
+          },
+          "test_status": {
+            "const": "success"
+          }
+        },
+        "required": [
+          "test_type",
+          "test_status"
+        ]
+      },
+      "then": {
+        "required": [
+          "latency_ms_rtt",
+          "packets_sent",
+          "packets_received",
+          "ip_target"
+        ]
+      }
+    }
+  ]
+}
