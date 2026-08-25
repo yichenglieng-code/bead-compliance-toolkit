@@ -93,9 +93,9 @@ def test_documented_invalid_example_breaks_in_distinct_ways() -> None:
     report = validate_records(records, kind, path)
 
     assert report.invalid_count >= 3, "expected at least three broken rows"
-    assert len({e.field_path for e in report.errors}) >= 3, (
-        "the broken rows should fail on different fields, not the same one three times"
-    )
+    assert (
+        len({e.field_path for e in report.errors}) >= 3
+    ), "the broken rows should fail on different fields, not the same one three times"
 
 
 # ------------------------------------------------- synthetic data guarantees
@@ -170,6 +170,4 @@ def test_changelog_mentions_the_current_version() -> None:
     from bead_data import __version__
 
     changelog = (REPO / "CHANGELOG.md").read_text(encoding="utf-8")
-    assert __version__ in changelog, (
-        f"CHANGELOG.md does not mention version {__version__}"
-    )
+    assert __version__ in changelog, f"CHANGELOG.md does not mention version {__version__}"
