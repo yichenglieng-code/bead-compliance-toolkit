@@ -55,6 +55,7 @@ the threshold and the sample set still fails, is written up in
 
 | Family | One record is | Serves |
 |---|---|---|
+| [`performance_test`](schemas/performance/v0/performance_test.schema.json) | one discrete speed or latency observation | what NTIA judges and USAC accepts |
 | [`performance_fact`](schemas/performance/v0/performance_fact.schema.json) | one funded location's performance over one measurement period | ISP milestone reporting; manufacturer factory test export |
 | [`deployment_location`](schemas/location/v0/deployment_location.schema.json) | one BEAD-funded location and its place in the build lifecycle | buildout milestone roll-up |
 | [`baba_evidence`](schemas/baba/v0/baba_evidence.schema.json) | Build America Buy America provenance for one component | manufacturer attestation; subgrantee evidence bundles |
@@ -108,6 +109,31 @@ is invalid, `2` could not read the input at all.
 The schema is autodetected from the fields present, or you can pin it with
 `--schema performance|location|baba`.
 
+### Go from raw observations to a submission
+
+The full chain a subgrantee actually runs:
+
+```bash
+bead-data validate  examples/synthetic_raw_tests.json --schema test
+bead-data aggregate examples/synthetic_raw_tests.json -o facts.json
+bead-data report    evidence/ --period 2026-Q3
+bead-data submit    examples/synthetic_raw_tests.json -d submission/
+```
+
+`aggregate` derives `performance_fact` records from raw observations, and that is worth
+more than convenience: **when the threshold counts are computed from the observations, a
+filtered denominator becomes arithmetically impossible rather than merely prohibited.**
+A submitter cannot understate a denominator by dropping failures, because both sides are
+counted from the same list.
+
+`submit` writes the USAC performance measurement CSV templates NTIA designates for
+submission — one file per technology and committed speed tier, BSL identifier in the first
+column — plus a manifest listing what still requires a person, including the officer
+certification and the random selection method. Those are left as blanks, not filler.
+
+It requires raw observations. Aggregated facts cannot be expanded back into individual
+test rows, and inventing them would be fabricating measurements.
+
 ### Convert between containers
 
 ```bash
@@ -150,16 +176,20 @@ is in [`examples/walkthrough.md`](examples/walkthrough.md).
 
 ## Implementing this in another language
 
-The schemas are the artifact; this Python package is the first binding, not the
-definition. To check an implementation in any language, use the
-[conformance suite](conformance/README.md) — 69 plain-JSON test vectors stating an
-instance, whether it must validate, and which fields a conforming implementation
-should blame when it does not.
+The schemas are the artifact; this Python package is one binding, not the definition.
+There is a [conformance suite](conformance/README.md) of **87 plain-JSON test vectors**
+stating an instance, whether it must validate, and which fields a conforming
+implementation should blame when it does not.
 
-The cross-field rules are what it pins hardest, because they are the ones most likely
-to be implemented inconsistently or skipped: a passing test count exceeding its total,
-a location reported as built with no build date, BABA evidence carrying both
-compliance paths or neither path's required fields.
+A [TypeScript binding](bindings/typescript/README.md) passes all 87, which is how the
+language-independence claim gets checked rather than merely stated.
+
+That exercise surfaced something worth knowing before you write your own: JSON Schema
+carries most of the contract, including the conditional requirements, but **it cannot
+express any rule that compares two values.** Those have to be written by hand in every
+implementation, and they include the count rule that is the whole defence against a
+filtered denominator. An implementer who runs a schema validator and stops will pass most
+of the suite and silently miss them. The list is enumerated in the TypeScript README.
 
 The suite found three defects in this implementation on its first run.
 
