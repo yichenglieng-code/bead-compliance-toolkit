@@ -1,0 +1,26 @@
+{
+  "conformance_suite_version": "0.1.0",
+  "name": "location/missing_technology_code",
+  "schema": "location",
+  "description": "Required field technology_code is absent.",
+  "rationale": "Required fields are required.",
+  "valid": false,
+  "instance": {
+    "schema_version": "0.1.0",
+    "location_id": "BSL-1002003004",
+    "state_or_territory": "NV",
+    "latitude": 39.1638,
+    "longitude": -119.7674,
+    "service_status": "active",
+    "install_date": "2026-05-14",
+    "provenance": {
+      "source_org": "Example Rural ISP",
+      "collected_by": "field-telemetry-collector",
+      "collected_at": "2026-08-01T04:00:00Z",
+      "tool": "bead-data 0.1.0"
+    }
+  },
+  "expect_fields": [
+    "technology_code"
+  ]
+}

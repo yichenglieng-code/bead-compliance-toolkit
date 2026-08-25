@@ -1,0 +1,40 @@
+{
+  "conformance_suite_version": "0.1.0",
+  "name": "performance/missing_location_ref",
+  "schema": "performance",
+  "description": "Required field location_ref is absent.",
+  "rationale": "Required fields are required. Accepting the record would let an unanswerable submission travel downstream.",
+  "valid": false,
+  "instance": {
+    "schema_version": "0.1.0",
+    "fact_id": "7d9d2e1a-2b4f-4e88-9a1d-3f5b8e7c0a12",
+    "state_or_territory": "NV",
+    "technology_code": 71,
+    "committed_down_mbps": 100.0,
+    "committed_up_mbps": 20.0,
+    "period_start": "2026-07-06T00:00:00Z",
+    "period_end": "2026-07-12T23:59:59Z",
+    "download_mbps": 312.5,
+    "upload_mbps": 41.2,
+    "latency_ms_mean": 18.6,
+    "download_tests_total": 42,
+    "download_tests_meeting_threshold": 41,
+    "upload_tests_total": 42,
+    "upload_tests_meeting_threshold": 40,
+    "latency_tests_total": 2520,
+    "latency_tests_at_or_below_100ms": 2498,
+    "uptime_pct": 99.82,
+    "outage_hours_365d": 12.5,
+    "measurement_method": "ont_cpe_builtin",
+    "device_class": "remote_node",
+    "provenance": {
+      "source_org": "Example Rural ISP",
+      "collected_by": "field-telemetry-collector",
+      "collected_at": "2026-08-01T04:00:00Z",
+      "tool": "bead-data 0.1.0"
+    }
+  },
+  "expect_fields": [
+    "location_ref"
+  ]
+}

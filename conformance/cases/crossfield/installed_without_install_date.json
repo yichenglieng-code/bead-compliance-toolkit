@@ -1,0 +1,26 @@
+{
+  "conformance_suite_version": "0.1.0",
+  "name": "crossfield/installed_without_install_date",
+  "schema": "location",
+  "description": "service_status is installed but install_date is absent.",
+  "rationale": "A location reported as built counts toward a buildout milestone, and a milestone claim with no date cannot be substantiated on review.",
+  "valid": false,
+  "instance": {
+    "schema_version": "0.1.0",
+    "location_id": "BSL-1002003004",
+    "state_or_territory": "NV",
+    "latitude": 39.1638,
+    "longitude": -119.7674,
+    "service_status": "installed",
+    "technology_code": 71,
+    "provenance": {
+      "source_org": "Example Rural ISP",
+      "collected_by": "field-telemetry-collector",
+      "collected_at": "2026-08-01T04:00:00Z",
+      "tool": "bead-data 0.1.0"
+    }
+  },
+  "expect_fields": [
+    "install_date"
+  ]
+}

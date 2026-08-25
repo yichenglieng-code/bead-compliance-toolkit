@@ -1,0 +1,30 @@
+{
+  "conformance_suite_version": "0.1.0",
+  "name": "baba/enum_component_type_invalid",
+  "schema": "baba",
+  "description": "component_type is outside the BABA category enum.",
+  "rationale": "BABA reaches iron, steel, manufactured products, and construction materials; the categories map onto that treatment.",
+  "valid": false,
+  "instance": {
+    "schema_version": "0.1.0",
+    "evidence_id": "1d9d2e1a-2b4f-4e88-9a1d-3f5b8e7c0a12",
+    "compliance_path": "domestic_certification",
+    "component": "Example FWA Base Node B200",
+    "component_type": "widget",
+    "component_description": "Sector base node terminating fixed wireless subscriber links.",
+    "manufacturer_name": "Example Broadband Equipment Co.",
+    "origin_country": "US",
+    "quantity": 24,
+    "manufacturing_location": "Austin, Texas, United States",
+    "certification_ref": "CERT-2026-0417-A",
+    "provenance": {
+      "source_org": "Example Rural ISP",
+      "collected_by": "field-telemetry-collector",
+      "collected_at": "2026-08-01T04:00:00Z",
+      "tool": "bead-data 0.1.0"
+    }
+  },
+  "expect_fields": [
+    "component_type"
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "conformance_suite_version": "0.1.0",
+  "name": "crossfield/certification_path_missing_letter_fields",
+  "schema": "baba",
+  "description": "Domestic certification path without certification_ref or manufacturing_location.",
+  "rationale": "These are key elements of the manufacturer's BABA certification letter. Without them the component is unsubstantiated.",
+  "valid": false,
+  "instance": {
+    "schema_version": "0.1.0",
+    "evidence_id": "1d9d2e1a-2b4f-4e88-9a1d-3f5b8e7c0a12",
+    "compliance_path": "domestic_certification",
+    "component": "Example FWA Base Node B200",
+    "component_type": "device",
+    "component_description": "Sector base node terminating fixed wireless subscriber links.",
+    "manufacturer_name": "Example Broadband Equipment Co.",
+    "origin_country": "US",
+    "quantity": 24,
+    "provenance": {
+      "source_org": "Example Rural ISP",
+      "collected_by": "field-telemetry-collector",
+      "collected_at": "2026-08-01T04:00:00Z",
+      "tool": "bead-data 0.1.0"
+    }
+  },
+  "expect_fields": [
+    "certification_ref",
+    "manufacturing_location"
+  ]
+}

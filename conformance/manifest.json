@@ -1,0 +1,493 @@
+{
+  "conformance_suite_version": "0.1.0",
+  "schema_version": "0.1.0",
+  "description": "Language-agnostic conformance vectors for the BEAD compliance data schemas. Each case states an instance, whether it must validate, and which fields a conforming implementation should blame when it does not.",
+  "case_count": 69,
+  "valid_count": 7,
+  "invalid_count": 62,
+  "cases": [
+    {
+      "name": "performance/valid_minimal",
+      "path": "cases/performance/valid_minimal.json",
+      "schema": "performance",
+      "valid": true,
+      "description": "A performance fact with only the required fields."
+    },
+    {
+      "name": "performance/valid_full",
+      "path": "cases/performance/valid_full.json",
+      "schema": "performance",
+      "valid": true,
+      "description": "A performance fact with every field populated."
+    },
+    {
+      "name": "performance/valid_cai",
+      "path": "cases/performance/valid_cai.json",
+      "schema": "performance",
+      "valid": true,
+      "description": "A community anchor institution fact."
+    },
+    {
+      "name": "location/valid_active",
+      "path": "cases/location/valid_active.json",
+      "schema": "location",
+      "valid": true,
+      "description": "An active funded location."
+    },
+    {
+      "name": "location/valid_planned_without_install_date",
+      "path": "cases/location/valid_planned_without_install_date.json",
+      "schema": "location",
+      "valid": true,
+      "description": "A planned location with no install_date."
+    },
+    {
+      "name": "baba/valid_domestic_certification",
+      "path": "cases/baba/valid_domestic_certification.json",
+      "schema": "baba",
+      "valid": true,
+      "description": "BABA evidence on the domestic certification path."
+    },
+    {
+      "name": "baba/valid_waiver",
+      "path": "cases/baba/valid_waiver.json",
+      "schema": "baba",
+      "valid": true,
+      "description": "BABA evidence on the waiver path."
+    },
+    {
+      "name": "performance/missing_fact_id",
+      "path": "cases/performance/missing_fact_id.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "Required field fact_id is absent."
+    },
+    {
+      "name": "performance/missing_location_ref",
+      "path": "cases/performance/missing_location_ref.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "Required field location_ref is absent."
+    },
+    {
+      "name": "performance/missing_state_or_territory",
+      "path": "cases/performance/missing_state_or_territory.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "Required field state_or_territory is absent."
+    },
+    {
+      "name": "performance/missing_technology_code",
+      "path": "cases/performance/missing_technology_code.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "Required field technology_code is absent."
+    },
+    {
+      "name": "performance/missing_committed_down_mbps",
+      "path": "cases/performance/missing_committed_down_mbps.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "Required field committed_down_mbps is absent."
+    },
+    {
+      "name": "performance/missing_period_start",
+      "path": "cases/performance/missing_period_start.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "Required field period_start is absent."
+    },
+    {
+      "name": "performance/missing_period_end",
+      "path": "cases/performance/missing_period_end.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "Required field period_end is absent."
+    },
+    {
+      "name": "performance/missing_download_mbps",
+      "path": "cases/performance/missing_download_mbps.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "Required field download_mbps is absent."
+    },
+    {
+      "name": "performance/missing_uptime_pct",
+      "path": "cases/performance/missing_uptime_pct.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "Required field uptime_pct is absent."
+    },
+    {
+      "name": "performance/missing_measurement_method",
+      "path": "cases/performance/missing_measurement_method.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "Required field measurement_method is absent."
+    },
+    {
+      "name": "performance/missing_device_class",
+      "path": "cases/performance/missing_device_class.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "Required field device_class is absent."
+    },
+    {
+      "name": "performance/missing_provenance",
+      "path": "cases/performance/missing_provenance.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "Required field provenance is absent."
+    },
+    {
+      "name": "location/missing_location_id",
+      "path": "cases/location/missing_location_id.json",
+      "schema": "location",
+      "valid": false,
+      "description": "Required field location_id is absent."
+    },
+    {
+      "name": "location/missing_latitude",
+      "path": "cases/location/missing_latitude.json",
+      "schema": "location",
+      "valid": false,
+      "description": "Required field latitude is absent."
+    },
+    {
+      "name": "location/missing_longitude",
+      "path": "cases/location/missing_longitude.json",
+      "schema": "location",
+      "valid": false,
+      "description": "Required field longitude is absent."
+    },
+    {
+      "name": "location/missing_service_status",
+      "path": "cases/location/missing_service_status.json",
+      "schema": "location",
+      "valid": false,
+      "description": "Required field service_status is absent."
+    },
+    {
+      "name": "location/missing_technology_code",
+      "path": "cases/location/missing_technology_code.json",
+      "schema": "location",
+      "valid": false,
+      "description": "Required field technology_code is absent."
+    },
+    {
+      "name": "baba/missing_component",
+      "path": "cases/baba/missing_component.json",
+      "schema": "baba",
+      "valid": false,
+      "description": "Required field component is absent."
+    },
+    {
+      "name": "baba/missing_component_type",
+      "path": "cases/baba/missing_component_type.json",
+      "schema": "baba",
+      "valid": false,
+      "description": "Required field component_type is absent."
+    },
+    {
+      "name": "baba/missing_component_description",
+      "path": "cases/baba/missing_component_description.json",
+      "schema": "baba",
+      "valid": false,
+      "description": "Required field component_description is absent."
+    },
+    {
+      "name": "baba/missing_manufacturer_name",
+      "path": "cases/baba/missing_manufacturer_name.json",
+      "schema": "baba",
+      "valid": false,
+      "description": "Required field manufacturer_name is absent."
+    },
+    {
+      "name": "baba/missing_origin_country",
+      "path": "cases/baba/missing_origin_country.json",
+      "schema": "baba",
+      "valid": false,
+      "description": "Required field origin_country is absent."
+    },
+    {
+      "name": "baba/missing_quantity",
+      "path": "cases/baba/missing_quantity.json",
+      "schema": "baba",
+      "valid": false,
+      "description": "Required field quantity is absent."
+    },
+    {
+      "name": "baba/missing_compliance_path",
+      "path": "cases/baba/missing_compliance_path.json",
+      "schema": "baba",
+      "valid": false,
+      "description": "Required field compliance_path is absent."
+    },
+    {
+      "name": "provenance/missing_source_org",
+      "path": "cases/provenance/missing_source_org.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "Provenance is missing source_org."
+    },
+    {
+      "name": "provenance/missing_collected_by",
+      "path": "cases/provenance/missing_collected_by.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "Provenance is missing collected_by."
+    },
+    {
+      "name": "provenance/missing_collected_at",
+      "path": "cases/provenance/missing_collected_at.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "Provenance is missing collected_at."
+    },
+    {
+      "name": "provenance/collected_at_not_iso8601",
+      "path": "cases/provenance/collected_at_not_iso8601.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "collected_at is not an ISO 8601 date-time."
+    },
+    {
+      "name": "performance/enum_measurement_method_speedtest",
+      "path": "cases/performance/enum_measurement_method_speedtest.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "measurement_method is 'speedtest'."
+    },
+    {
+      "name": "performance/enum_device_class_unknown",
+      "path": "cases/performance/enum_device_class_unknown.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "device_class is a vendor product name."
+    },
+    {
+      "name": "performance/enum_technology_code_invalid",
+      "path": "cases/performance/enum_technology_code_invalid.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "technology_code is not an FCC fixed technology code."
+    },
+    {
+      "name": "location/enum_service_status_invalid",
+      "path": "cases/location/enum_service_status_invalid.json",
+      "schema": "location",
+      "valid": false,
+      "description": "service_status is outside the lifecycle enum."
+    },
+    {
+      "name": "baba/enum_component_type_invalid",
+      "path": "cases/baba/enum_component_type_invalid.json",
+      "schema": "baba",
+      "valid": false,
+      "description": "component_type is outside the BABA category enum."
+    },
+    {
+      "name": "baba/enum_compliance_path_invalid",
+      "path": "cases/baba/enum_compliance_path_invalid.json",
+      "schema": "baba",
+      "valid": false,
+      "description": "compliance_path is neither of the two NTIA paths."
+    },
+    {
+      "name": "performance/pattern_fact_id_not_uuid4",
+      "path": "cases/performance/pattern_fact_id_not_uuid4.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "fact_id is not a UUID v4."
+    },
+    {
+      "name": "performance/pattern_state_not_two_letters",
+      "path": "cases/performance/pattern_state_not_two_letters.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "state_or_territory is a full state name."
+    },
+    {
+      "name": "baba/pattern_origin_country_alpha3",
+      "path": "cases/baba/pattern_origin_country_alpha3.json",
+      "schema": "baba",
+      "valid": false,
+      "description": "origin_country uses ISO alpha-3 instead of alpha-2."
+    },
+    {
+      "name": "baba/pattern_hs_code_too_short",
+      "path": "cases/baba/pattern_hs_code_too_short.json",
+      "schema": "baba",
+      "valid": false,
+      "description": "hs_code_10 has eight digits."
+    },
+    {
+      "name": "baba/pattern_sha256_not_hex",
+      "path": "cases/baba/pattern_sha256_not_hex.json",
+      "schema": "baba",
+      "valid": false,
+      "description": "attestation_doc_sha256 is not 64 lowercase hex characters."
+    },
+    {
+      "name": "performance/range_uptime_above_100",
+      "path": "cases/performance/range_uptime_above_100.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "uptime_pct is greater than 100."
+    },
+    {
+      "name": "performance/range_negative_download",
+      "path": "cases/performance/range_negative_download.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "download_mbps is negative."
+    },
+    {
+      "name": "performance/range_committed_below_floor",
+      "path": "cases/performance/range_committed_below_floor.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "committed_down_mbps is below the 100 Mbps floor."
+    },
+    {
+      "name": "performance/range_committed_up_below_floor",
+      "path": "cases/performance/range_committed_up_below_floor.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "committed_up_mbps is below the 20 Mbps floor."
+    },
+    {
+      "name": "location/range_latitude_out_of_bounds",
+      "path": "cases/location/range_latitude_out_of_bounds.json",
+      "schema": "location",
+      "valid": false,
+      "description": "latitude exceeds 90 degrees."
+    },
+    {
+      "name": "location/range_longitude_out_of_bounds",
+      "path": "cases/location/range_longitude_out_of_bounds.json",
+      "schema": "location",
+      "valid": false,
+      "description": "longitude is below -180 degrees."
+    },
+    {
+      "name": "baba/range_quantity_zero",
+      "path": "cases/baba/range_quantity_zero.json",
+      "schema": "baba",
+      "valid": false,
+      "description": "quantity is zero."
+    },
+    {
+      "name": "crossfield/period_end_before_start",
+      "path": "cases/crossfield/period_end_before_start.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "period_end precedes period_start."
+    },
+    {
+      "name": "crossfield/download_passing_exceeds_total",
+      "path": "cases/crossfield/download_passing_exceeds_total.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "More passing download tests than total download tests."
+    },
+    {
+      "name": "crossfield/upload_passing_exceeds_total",
+      "path": "cases/crossfield/upload_passing_exceeds_total.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "More passing upload tests than total upload tests."
+    },
+    {
+      "name": "crossfield/latency_passing_exceeds_total",
+      "path": "cases/crossfield/latency_passing_exceeds_total.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "More within-ceiling latency tests than total latency tests."
+    },
+    {
+      "name": "crossfield/installed_without_install_date",
+      "path": "cases/crossfield/installed_without_install_date.json",
+      "schema": "location",
+      "valid": false,
+      "description": "service_status is installed but install_date is absent."
+    },
+    {
+      "name": "crossfield/active_without_install_date",
+      "path": "cases/crossfield/active_without_install_date.json",
+      "schema": "location",
+      "valid": false,
+      "description": "service_status is active but install_date is absent."
+    },
+    {
+      "name": "crossfield/certification_path_missing_letter_fields",
+      "path": "cases/crossfield/certification_path_missing_letter_fields.json",
+      "schema": "baba",
+      "valid": false,
+      "description": "Domestic certification path without certification_ref or manufacturing_location."
+    },
+    {
+      "name": "crossfield/waiver_path_missing_tracker_fields",
+      "path": "cases/crossfield/waiver_path_missing_tracker_fields.json",
+      "schema": "baba",
+      "valid": false,
+      "description": "Waiver path without hs_code_10 or product_identifier."
+    },
+    {
+      "name": "crossfield/both_compliance_paths_present",
+      "path": "cases/crossfield/both_compliance_paths_present.json",
+      "schema": "baba",
+      "valid": false,
+      "description": "Domestic certification path also carrying a waiver_ref."
+    },
+    {
+      "name": "crossfield/waiver_path_with_certification_ref",
+      "path": "cases/crossfield/waiver_path_with_certification_ref.json",
+      "schema": "baba",
+      "valid": false,
+      "description": "Waiver path also carrying a certification_ref."
+    },
+    {
+      "name": "strict/performance_unknown_field",
+      "path": "cases/strict/performance_unknown_field.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "An unknown field is present."
+    },
+    {
+      "name": "strict/performance_wrong_schema_version",
+      "path": "cases/strict/performance_wrong_schema_version.json",
+      "schema": "performance",
+      "valid": false,
+      "description": "schema_version does not match this schema version."
+    },
+    {
+      "name": "strict/location_unknown_field",
+      "path": "cases/strict/location_unknown_field.json",
+      "schema": "location",
+      "valid": false,
+      "description": "An unknown field is present."
+    },
+    {
+      "name": "strict/location_wrong_schema_version",
+      "path": "cases/strict/location_wrong_schema_version.json",
+      "schema": "location",
+      "valid": false,
+      "description": "schema_version does not match this schema version."
+    },
+    {
+      "name": "strict/baba_unknown_field",
+      "path": "cases/strict/baba_unknown_field.json",
+      "schema": "baba",
+      "valid": false,
+      "description": "An unknown field is present."
+    },
+    {
+      "name": "strict/baba_wrong_schema_version",
+      "path": "cases/strict/baba_wrong_schema_version.json",
+      "schema": "baba",
+      "valid": false,
+      "description": "schema_version does not match this schema version."
+    }
+  ]
+}

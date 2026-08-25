@@ -1,0 +1,23 @@
+{
+  "conformance_suite_version": "0.1.0",
+  "name": "location/valid_planned_without_install_date",
+  "schema": "location",
+  "description": "A planned location with no install_date.",
+  "rationale": "install_date is conditionally required. A location not yet built must be representable without inventing a build date.",
+  "valid": true,
+  "instance": {
+    "schema_version": "0.1.0",
+    "location_id": "BSL-1002003004",
+    "state_or_territory": "NV",
+    "latitude": 39.1638,
+    "longitude": -119.7674,
+    "service_status": "planned",
+    "technology_code": 71,
+    "provenance": {
+      "source_org": "Example Rural ISP",
+      "collected_by": "field-telemetry-collector",
+      "collected_at": "2026-08-01T04:00:00Z",
+      "tool": "bead-data 0.1.0"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "conformance_suite_version": "0.1.0",
+  "name": "crossfield/waiver_path_missing_tracker_fields",
+  "schema": "baba",
+  "description": "Waiver path without hs_code_10 or product_identifier.",
+  "rationale": "These are key elements of the NTIA waiver reporting tracker.",
+  "valid": false,
+  "instance": {
+    "schema_version": "0.1.0",
+    "evidence_id": "2e8c3f66-4c2d-4b09-9e11-5a9c0d8b6e34",
+    "compliance_path": "waiver",
+    "component": "Example Aggregation Switch S48",
+    "component_type": "device",
+    "component_description": "48-port aggregation switch backhauling tower sites.",
+    "product_category": "switch",
+    "manufacturer_name": "Example Networking Systems Inc.",
+    "origin_country": "VN",
+    "quantity": 6,
+    "waiver_ref": "BEAD-BABA-WAIVER-2024-02-23",
+    "waiver_type": "general_applicability",
+    "provenance": {
+      "source_org": "Example Rural ISP",
+      "collected_by": "field-telemetry-collector",
+      "collected_at": "2026-08-01T04:00:00Z",
+      "tool": "bead-data 0.1.0"
+    }
+  },
+  "expect_fields": [
+    "hs_code_10",
+    "product_identifier"
+  ]
+}

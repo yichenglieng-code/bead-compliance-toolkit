@@ -1,0 +1,27 @@
+{
+  "conformance_suite_version": "0.1.0",
+  "name": "strict/location_wrong_schema_version",
+  "schema": "location",
+  "description": "schema_version does not match this schema version.",
+  "rationale": "Records declare the version they conform to so a consumer can refuse data it does not understand rather than misread it.",
+  "valid": false,
+  "instance": {
+    "schema_version": "0.2.0",
+    "location_id": "BSL-1002003004",
+    "state_or_territory": "NV",
+    "latitude": 39.1638,
+    "longitude": -119.7674,
+    "service_status": "active",
+    "install_date": "2026-05-14",
+    "technology_code": 71,
+    "provenance": {
+      "source_org": "Example Rural ISP",
+      "collected_by": "field-telemetry-collector",
+      "collected_at": "2026-08-01T04:00:00Z",
+      "tool": "bead-data 0.1.0"
+    }
+  },
+  "expect_fields": [
+    "schema_version"
+  ]
+}
