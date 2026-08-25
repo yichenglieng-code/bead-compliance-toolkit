@@ -8,65 +8,16 @@ NTIA guidance that a reasonable implementer might get wrong in the other directi
 from __future__ import annotations
 
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 from pathlib import Path
 
 import pytest
 
 from bead_data.aggregate import AggregationError, aggregate_tests, derived_fact_id
 from bead_data.validate import validate_records
+from helpers import BASE_TIME, latency, make_test, speed
 
 EXAMPLES = Path(__file__).resolve().parents[1] / "examples"
-OFFSET = timezone(timedelta(hours=-7))
-BASE_TIME = datetime(2026, 7, 6, 19, 0, tzinfo=OFFSET)
-
-MBPS_BYTES = 1_000_000 / 8
-
-
-def make_test(**overrides) -> dict:
-    record = {
-        "schema_version": "0.1.0",
-        "test_id": "7d9d2e1a-2b4f-4e88-9a1d-3f5b8e7c0a12",
-        "location_ref": "BSL-1002003004",
-        "state_or_territory": "NV",
-        "technology_code": 71,
-        "committed_down_mbps": 100.0,
-        "committed_up_mbps": 20.0,
-        "test_type": "download",
-        "test_status": "success",
-        "started_at": BASE_TIME.isoformat(timespec="milliseconds"),
-        "ended_at": (BASE_TIME + timedelta(seconds=16)).isoformat(timespec="milliseconds"),
-        "ip_target": "ixp.example",
-        "bytes_transferred": int(200 * MBPS_BYTES * 16),
-        "provenance": {
-            "source_org": "Example Rural ISP",
-            "collected_by": "collector",
-            "collected_at": "2026-08-01T04:00:00Z",
-        },
-    }
-    record.update(overrides)
-    return record
-
-
-def speed(mbps: float, direction: str = "download", seconds: float = 16.0, **kw) -> dict:
-    return make_test(
-        test_type=direction,
-        ended_at=(BASE_TIME + timedelta(seconds=seconds)).isoformat(timespec="milliseconds"),
-        bytes_transferred=int(mbps * MBPS_BYTES * seconds),
-        **kw,
-    )
-
-
-def latency(rtt: float, received: int = 3, **kw) -> dict:
-    return make_test(
-        test_type="latency",
-        latency_ms_rtt=rtt,
-        packets_sent=3,
-        packets_received=received,
-        ended_at=None,
-        bytes_transferred=None,
-        **kw,
-    )
 
 
 def only_fact(records: list[dict]) -> dict:

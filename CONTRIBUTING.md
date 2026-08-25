@@ -59,6 +59,30 @@ ruff check .            # lint
 ruff format .           # format
 ```
 
+Run `pytest`, not `python -m pytest`. The two differ in one way that matters:
+`python -m pytest` puts the working directory on `sys.path` and the console script
+does not, so an import that only works under the module form will pass locally and
+fail in CI. That has happened here. Shared test helpers live in `tests/helpers.py`
+for this reason, and a test enforces that no test module imports another.
+
+Generated files are committed and checked:
+
+```bash
+python tools/gen_schema_reference.py    # docs/schema_reference.md
+python tools/gen_conformance.py         # conformance/
+python examples/generate_examples.py    # examples/
+python examples/generate_raw_tests.py   # examples/synthetic_raw_tests.json
+```
+
+If you change a schema, regenerate the reference and the conformance suite; CI fails
+on a stale copy of either.
+
+The TypeScript binding runs the same conformance vectors:
+
+```bash
+cd bindings/typescript && npm install && npm run conformance
+```
+
 CI runs the same three on Python 3.11 and 3.12, plus a fresh-clone install that
 validates every example. All of it must be green.
 

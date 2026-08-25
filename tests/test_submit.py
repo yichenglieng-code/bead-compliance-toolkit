@@ -16,7 +16,6 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
-from tests.test_aggregate import latency, make_test, speed
 
 from bead_data.submit import (
     LATENCY_COLUMNS,
@@ -28,6 +27,7 @@ from bead_data.submit import (
     submission_manifest,
     usac_timestamp,
 )
+from helpers import latency, make_test, speed
 
 EXAMPLES = Path(__file__).resolve().parents[1] / "examples"
 OFFSET = timezone(timedelta(hours=-7))
