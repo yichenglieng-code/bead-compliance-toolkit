@@ -47,6 +47,10 @@ each needs a numerator and a denominator, not an average.
 So the performance schema in this toolkit carries the test counts, not just the means.
 That one design decision is most of the value here.
 
+The longer version of this argument, with a worked example where mean upload speed clears
+the threshold and the sample set still fails, is written up in
+[**Your BEAD performance report probably passes on averages and fails on the rules**](https://yichenglieng-code.github.io/bead-compliance-averages/).
+
 ## The three fact families
 
 | Family | One record is | Serves |
@@ -210,7 +214,8 @@ adopter to run this implementation, or to use Python at all.
 
 ## About
 
-Built and maintained by Yicheng (Ethan) Li, a software engineer specializing in
+Built and maintained by [Yicheng (Ethan) Li](https://yichenglieng-code.github.io/), a
+software engineer specializing in
 large-scale distributed systems and manufacturing data infrastructure. He spent three
 years building the cloud manufacturing platform behind next-generation fixed wireless
 access equipment now deployed across rural America, including networks funded by the
