@@ -294,6 +294,7 @@ def detect_kind(records: list[dict], path: Path | None = None) -> str:
 
 
 _REQUIRED_PROP = re.compile(r"^'([^']+)' is a required property$")
+_QUOTED_NAME = re.compile(r"'([^']+)'")
 _LEADING_IDENT = re.compile(r"^([a-z_][a-z0-9_]*)\b")
 
 
@@ -313,6 +314,23 @@ def _json_path(error) -> str:
             return f"{prefix}.{name}" if prefix else name
 
     return prefix or "<record>"
+
+
+def _schema_error_fields(error) -> list[str]:
+    """Field paths to blame for one JSON Schema error.
+
+    Usually one. ``additionalProperties`` is the exception: it reports a single
+    error naming every unexpected property at once, and a submitter with three
+    stray columns needs all three named rather than being told the record as a
+    whole is wrong.
+    """
+    if error.validator == "additionalProperties":
+        prefix = ".".join(str(p) for p in error.absolute_path)
+        names = _QUOTED_NAME.findall(error.message)
+        if names:
+            return [f"{prefix}.{n}" if prefix else n for n in names]
+
+    return [_json_path(error)]
 
 
 def _model_path(loc: tuple, message: str, model: type) -> str:
@@ -346,13 +364,14 @@ def validate_records(records: list[dict], kind: str, path: Path | None = None) -
         schema_errors = sorted(validator.iter_errors(record), key=lambda e: list(e.absolute_path))
         if schema_errors:
             for err in schema_errors:
-                report.errors.append(
-                    RecordError(
-                        record_index=index,
-                        field_path=_json_path(err),
-                        message=err.message,
+                for path in _schema_error_fields(err):
+                    report.errors.append(
+                        RecordError(
+                            record_index=index,
+                            field_path=path,
+                            message=err.message,
+                        )
                     )
-                )
             continue
 
         try:
