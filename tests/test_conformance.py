@@ -18,7 +18,10 @@ from pathlib import Path
 
 import pytest
 
+from bead_data.schemas import FACT_KINDS
 from bead_data.validate import validate_records
+
+KNOWN_SCHEMAS = frozenset(FACT_KINDS)
 
 REPO = Path(__file__).resolve().parents[1]
 CONFORMANCE = REPO / "conformance"
@@ -74,12 +77,15 @@ def test_suite_is_current() -> None:
 
 
 def test_suite_covers_every_schema() -> None:
+    """Derived from FACT_KINDS, so a new schema without vectors fails here."""
     covered = {c["schema"] for c in ALL_CASES}
-    assert covered == {"performance", "location", "baba"}
+    assert (
+        covered == KNOWN_SCHEMAS
+    ), f"schemas without conformance vectors: {sorted(KNOWN_SCHEMAS - covered)}"
 
 
 def test_suite_has_both_outcomes_for_every_schema() -> None:
-    for schema in ("performance", "location", "baba"):
+    for schema in sorted(KNOWN_SCHEMAS):
         subset = [c for c in ALL_CASES if c["schema"] == schema]
         assert any(c["valid"] for c in subset), f"{schema}: no valid case"
         assert any(not c["valid"] for c in subset), f"{schema}: no invalid case"
@@ -90,7 +96,7 @@ def test_every_case_is_self_describing(case: dict) -> None:
     """A case an implementer cannot understand is a case they will ignore."""
     assert case["description"].strip()
     assert case["rationale"].strip()
-    assert case["schema"] in ("performance", "location", "baba")
+    assert case["schema"] in KNOWN_SCHEMAS
     assert isinstance(case["instance"], dict)
     if not case["valid"]:
         assert case["expect_fields"], f"{case['name']}: invalid case blames no field"

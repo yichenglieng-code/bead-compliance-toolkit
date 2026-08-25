@@ -35,7 +35,7 @@ TARGET = REPO / "docs" / "schema_reference.md"
 
 # Rendered in this order: the interchange story runs performance, then the
 # locations those facts attach to, then the BABA provenance for the hardware.
-KIND_ORDER = ["performance", "location", "baba"]
+KIND_ORDER = ["test", "performance", "location", "baba"]
 
 
 def technology_rows() -> list[tuple[str, str, str]]:
@@ -47,6 +47,33 @@ def technology_rows() -> list[tuple[str, str, str]]:
 
 
 CROSS_FIELD_RULES = [
+    (
+        "test",
+        "a successful test must carry the measurement it claims to have taken",
+        "A successful speed test needs bytes and an end time; a successful latency test "
+        "needs a round-trip time and packet counts. Without them there is no measurement, "
+        "only an assertion that one happened.",
+    ),
+    (
+        "test",
+        "a test that did not run must not carry a result",
+        "NTIA permits reporting that no test completed in a testing hour because consumer "
+        "cross-traffic exceeded the threshold. Such an attempt has no measurement, and a "
+        "record claiming one would be reporting a result that was never observed.",
+    ),
+    (
+        "test",
+        "`packets_received` must not exceed `packets_sent`",
+        "Arithmetically impossible, and the shape a corrupted or synthesised latency "
+        "record tends to take.",
+    ),
+    (
+        "test",
+        "a successful speed test must span at least 15 seconds",
+        "NTIA sets a minimum speed-test duration of 15 seconds. A shorter measurement is "
+        "not a compliant test, and accepting one silently would let a non-compliant "
+        "methodology produce results that look valid.",
+    ),
     (
         "performance",
         "`period_end` must be at or after `period_start`",
@@ -168,6 +195,15 @@ def render_properties(schema: dict, required: set[str], conditional: dict[str, s
 
 def conditional_map(kind: str) -> dict[str, str]:
     """Which fields are required only on some condition, and what that condition is."""
+    if kind == "test":
+        return {
+            "bytes_transferred": "for a successful `download` or `upload` test.",
+            "ended_at": "for a successful `download` or `upload` test.",
+            "latency_ms_rtt": "for a successful `latency` test.",
+            "packets_sent": "for a successful `latency` test.",
+            "packets_received": "for a successful `latency` test.",
+            "ip_target": "for any successful test.",
+        }
     if kind == "location":
         return {"install_date": "when `service_status` is `installed` or `active`."}
     if kind == "baba":

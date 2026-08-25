@@ -1,0 +1,35 @@
+{
+  "conformance_suite_version": "0.1.0",
+  "name": "strict/test_wrong_schema_version",
+  "schema": "test",
+  "description": "schema_version does not match this schema version.",
+  "rationale": "Records declare the version they conform to so a consumer can refuse data it does not understand rather than misread it.",
+  "valid": false,
+  "instance": {
+    "schema_version": "0.2.0",
+    "test_id": "3f1c9a2b-6d4e-4f81-9c27-8a5b0e3d7f60",
+    "location_ref": "BSL-1002003004",
+    "subscriber_ref": "SUB-8f21a4",
+    "state_or_territory": "NV",
+    "technology_code": 71,
+    "committed_down_mbps": 100.0,
+    "committed_up_mbps": 20.0,
+    "test_type": "download",
+    "test_status": "success",
+    "started_at": "2026-07-06T19:03:01.123-07:00",
+    "ended_at": "2026-07-06T19:03:17.456-07:00",
+    "ip_target": "ixp-lasvegas-1.example-isp.example",
+    "bytes_transferred": 640000000,
+    "measurement_method": "ont_cpe_builtin",
+    "device_class": "remote_node",
+    "provenance": {
+      "source_org": "Example Rural ISP",
+      "collected_by": "field-telemetry-collector",
+      "collected_at": "2026-08-01T04:00:00Z",
+      "tool": "bead-data 0.1.0"
+    }
+  },
+  "expect_fields": [
+    "schema_version"
+  ]
+}

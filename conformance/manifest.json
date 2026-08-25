@@ -2,9 +2,9 @@
   "conformance_suite_version": "0.1.0",
   "schema_version": "0.1.0",
   "description": "Language-agnostic conformance vectors for the BEAD compliance data schemas. Each case states an instance, whether it must validate, and which fields a conforming implementation should blame when it does not.",
-  "case_count": 69,
-  "valid_count": 7,
-  "invalid_count": 62,
+  "case_count": 87,
+  "valid_count": 11,
+  "invalid_count": 76,
   "cases": [
     {
       "name": "performance/valid_minimal",
@@ -448,6 +448,118 @@
       "description": "Waiver path also carrying a certification_ref."
     },
     {
+      "name": "test/valid_speed",
+      "path": "cases/test/valid_speed.json",
+      "schema": "test",
+      "valid": true,
+      "description": "A successful download observation."
+    },
+    {
+      "name": "test/valid_latency",
+      "path": "cases/test/valid_latency.json",
+      "schema": "test",
+      "valid": true,
+      "description": "A successful latency observation."
+    },
+    {
+      "name": "test/valid_lost_packets",
+      "path": "cases/test/valid_lost_packets.json",
+      "schema": "test",
+      "valid": true,
+      "description": "A latency observation where every packet was lost."
+    },
+    {
+      "name": "test/valid_deferred_for_crosstalk",
+      "path": "cases/test/valid_deferred_for_crosstalk.json",
+      "schema": "test",
+      "valid": true,
+      "description": "A speed test deferred because consumer load exceeded the threshold."
+    },
+    {
+      "name": "test/success_speed_without_bytes",
+      "path": "cases/test/success_speed_without_bytes.json",
+      "schema": "test",
+      "valid": false,
+      "description": "A successful speed test with no bytes_transferred."
+    },
+    {
+      "name": "test/success_speed_without_end",
+      "path": "cases/test/success_speed_without_end.json",
+      "schema": "test",
+      "valid": false,
+      "description": "A successful speed test with no ended_at."
+    },
+    {
+      "name": "test/success_latency_without_rtt",
+      "path": "cases/test/success_latency_without_rtt.json",
+      "schema": "test",
+      "valid": false,
+      "description": "A successful latency test with no round-trip time."
+    },
+    {
+      "name": "test/success_latency_without_packet_counts",
+      "path": "cases/test/success_latency_without_packet_counts.json",
+      "schema": "test",
+      "valid": false,
+      "description": "A successful latency test with no packet counts."
+    },
+    {
+      "name": "test/not_run_but_carries_a_result",
+      "path": "cases/test/not_run_but_carries_a_result.json",
+      "schema": "test",
+      "valid": false,
+      "description": "A test marked not run that still reports bytes transferred."
+    },
+    {
+      "name": "test/packets_received_exceeds_sent",
+      "path": "cases/test/packets_received_exceeds_sent.json",
+      "schema": "test",
+      "valid": false,
+      "description": "More packets received than were sent."
+    },
+    {
+      "name": "test/speed_test_shorter_than_15_seconds",
+      "path": "cases/test/speed_test_shorter_than_15_seconds.json",
+      "schema": "test",
+      "valid": false,
+      "description": "A successful speed test spanning 5 seconds."
+    },
+    {
+      "name": "test/end_before_start",
+      "path": "cases/test/end_before_start.json",
+      "schema": "test",
+      "valid": false,
+      "description": "ended_at precedes started_at."
+    },
+    {
+      "name": "test/enum_test_type_invalid",
+      "path": "cases/test/enum_test_type_invalid.json",
+      "schema": "test",
+      "valid": false,
+      "description": "test_type is not one of download, upload, or latency."
+    },
+    {
+      "name": "test/enum_test_status_invalid",
+      "path": "cases/test/enum_test_status_invalid.json",
+      "schema": "test",
+      "valid": false,
+      "description": "test_status is outside the status vocabulary."
+    },
+    {
+      "name": "test/missing_started_at",
+      "path": "cases/test/missing_started_at.json",
+      "schema": "test",
+      "valid": false,
+      "description": "started_at is absent."
+    },
+    {
+      "name": "test/pattern_test_id_not_uuid4",
+      "path": "cases/test/pattern_test_id_not_uuid4.json",
+      "schema": "test",
+      "valid": false,
+      "description": "test_id is not a UUID v4."
+    },
+    {
       "name": "strict/performance_unknown_field",
       "path": "cases/strict/performance_unknown_field.json",
       "schema": "performance",
@@ -486,6 +598,20 @@
       "name": "strict/baba_wrong_schema_version",
       "path": "cases/strict/baba_wrong_schema_version.json",
       "schema": "baba",
+      "valid": false,
+      "description": "schema_version does not match this schema version."
+    },
+    {
+      "name": "strict/test_unknown_field",
+      "path": "cases/strict/test_unknown_field.json",
+      "schema": "test",
+      "valid": false,
+      "description": "An unknown field is present."
+    },
+    {
+      "name": "strict/test_wrong_schema_version",
+      "path": "cases/strict/test_wrong_schema_version.json",
+      "schema": "test",
       "valid": false,
       "description": "schema_version does not match this schema version."
     }

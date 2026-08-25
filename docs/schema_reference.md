@@ -14,6 +14,7 @@ requirement behind each one is cited to a primary NTIA, FCC, or USAC source in
 
 ## Contents
 
+- [Performance Test](#performance-test) — `--schema test`
 - [Performance Fact](#performance-fact) — `--schema performance`
 - [Deployment Location](#deployment-location) — `--schema location`
 - [BABA Evidence](#baba-evidence) — `--schema baba`
@@ -24,13 +25,167 @@ requirement behind each one is cited to a primary NTIA, FCC, or USAC source in
 
 ---
 
+## Performance Test
+
+`schemas/performance/v0/performance_test.schema.json`
+
+One discrete speed or latency observation, as actually conducted. Rationale: NTIA defines a test as a single discrete observation of speed or latency taken from the customer premises of an active subscriber to a remote server at or reached through an FCC-designated internet exchange point, and designates the USAC performance measurement CSV templates for submission. Those templates are per-test, not per-period. This schema is that level. It matters for a reason beyond format conversion: when the aggregate counts in performance_fact are derived from these records rather than asserted by a submitter, a filtered denominator becomes arithmetically impossible instead of merely prohibited.
+
+11 required fields, 12 optional. `additionalProperties` is `false`: unknown fields are rejected, which keeps private extensions out of a format meant to be adopted sector-wide.
+
+#### `schema_version`
+
+**Required.** Type `"0.1.0"` (constant). Constraints: must equal `0.1.0`.
+
+Version of this schema the record claims to conform to.
+
+#### `test_id`
+
+**Required.** Type `string`. Constraints: pattern `^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`; format `uuid`.
+
+UUID v4 uniquely identifying this observation. Assigned where the test runs, so that a retry after a network failure is distinguishable from a genuinely duplicated test.
+
+#### `location_ref`
+
+**Required.** Type `string`. Constraints: non-empty.
+
+FCC Broadband Serviceable Location (BSL) Location ID of the tested premises. NTIA directs that because funded locations have no HUBB Location ID, the BSL identifier occupies the first column of the submitted results file.
+
+Examples: `BSL-1002003004`
+
+#### `subscriber_ref`
+
+Optional. Type `string`. Constraints: non-empty.
+
+Optional provider-assigned identifier for the active subscriber at this location, required by the USAC submission templates. Use a pseudonymous key, never a name, account number, or anything else that identifies a person: these records are meant to be publishable, and NTIA's measurement methodology is designed so that testing collects no user data.
+
+Examples: `SUB-8f21a4`
+
+#### `state_or_territory`
+
+**Required.** Type `string`. Constraints: pattern `^[A-Z]{2}$`.
+
+Two-letter USPS code. Sample sets are drawn and evaluated per state or territory.
+
+#### `technology_code`
+
+**Required.** Type `integer`. Constraints: one of `0`, `10`, `40`, `50`, `60`, `61`, `70`, `71`, `72`.
+
+FCC fixed technology code for the technology serving this location. Sample sets separate on this field, and NTIA requires a separate submission file per technology and committed speed tier.
+
+#### `committed_down_mbps`
+
+**Required.** Type `number`. Constraints: at least 100.
+
+Committed download speed tier in Mbps. Floor of 100 comes from the NTIA definition of committed speed tier.
+
+#### `committed_up_mbps`
+
+**Required.** Type `number`. Constraints: at least 20.
+
+Committed upload speed tier in Mbps. Floor of 20 comes from the same definition.
+
+#### `test_type`
+
+**Required.** Type `string`. Constraints: one of `download`, `upload`, `latency`.
+
+What was measured. Download and upload are separate test types because NTIA counts the two directions separately and each must independently satisfy the speed standard.
+
+#### `test_status`
+
+**Required.** Type `string`. Constraints: one of `success`, `not_run_crosstalk`, `not_run_other`.
+
+Outcome of the attempt, mirroring the USAC template's status codes: success, not run because consumer cross-traffic exceeded the threshold, or not run for another reason. NTIA permits deferring a speed test when consumer load exceeds 10 percent of the committed speed in the relevant direction, and permits reporting that no test completed in a testing hour for that reason. Recording the attempt is required either way; a test that was not run is not the same as a test that never existed.
+
+#### `started_at`
+
+**Required.** Type `string`. Constraints: format `date-time`.
+
+ISO 8601 start of the observation, with millisecond precision and an explicit UTC offset. NTIA requires testing between 6:00 pm and midnight local time, so the offset is what makes local testing hours checkable.
+
+Examples: `2026-07-06T19:03:01.123-07:00`
+
+#### `ended_at`
+
+**Conditionally required** — for a successful `download` or `upload` test. Type `string`. Constraints: format `date-time`.
+
+ISO 8601 end of the observation. Required for a successful speed test, because duration is what converts transferred bytes into a throughput figure.
+
+#### `ip_target`
+
+**Conditionally required** — for any successful test. Type `string`. Constraints: non-empty.
+
+Fully qualified host name or address of the remote test server, which must be at or reached by passing through an FCC-designated internet exchange point.
+
+Examples: `ixp-denver-1.example-isp.example`
+
+#### `bytes_transferred`
+
+**Conditionally required** — for a successful `download` or `upload` test. Type `integer`. Constraints: at least 0.
+
+Total bytes received or sent across all connections or threads during the observation. Required for a successful speed test. Kept as bytes rather than a precomputed throughput figure so that the throughput a consumer derives is reproducible from the record.
+
+#### `latency_ms_rtt`
+
+**Conditionally required** — for a successful `latency` test. Type `number`. Constraints: at least 0.
+
+Round-trip time in milliseconds, the mean across packets received. Required for a successful latency test.
+
+#### `packets_sent`
+
+**Conditionally required** — for a successful `latency` test. Type `integer`. Constraints: at least 0.
+
+Packets successfully sent. Required for a successful latency test.
+
+#### `packets_received`
+
+**Conditionally required** — for a successful `latency` test. Type `integer`. Constraints: at least 0.
+
+Packets successfully received. Must not exceed packets_sent. Recording this rather than only the round-trip time is what makes packet loss visible: NTIA requires lost-packet tests to be recorded and counted as discrete tests that did not meet the standard, and forbids discarding them.
+
+#### `measurement_method`
+
+Optional. Type `string`. Constraints: one of `cwmp_tr069`, `tr369_usp`, `gateway_software`, `ont_cpe_builtin`, `dedicated_measurement_device`, `other`.
+
+How the observation was taken. NTIA requires active measurement rather than readings drawn from classical network management systems.
+
+#### `device_class`
+
+Optional. Type `string`. Constraints: one of `base_node`, `remote_node`, `cpe`, `other`.
+
+Vendor-neutral class of equipment serving the location.
+
+#### `sample_set_id`
+
+Optional. Type `string`. Constraints: non-empty.
+
+Optional grouping key for the sample set this observation belongs to.
+
+#### `is_cai`
+
+Optional. Type `boolean`. Constraints: defaults to `false`.
+
+Whether this location is a community anchor institution, which carries the 1 Gbps symmetric standard rather than 100/20 Mbps.
+
+#### `comment`
+
+Optional. Type `string`. Constraints: non-empty.
+
+Optional free-text note, carried through to the USAC template's comment column. NTIA forbids deleting or editing measurements but does allow submitting evidence of test infrastructure failure alongside them, and this is where that explanation belongs.
+
+#### `provenance`
+
+**Required.** Shared object; see [Provenance](#provenance-shared) below.
+
+---
+
 ## Performance Fact
 
 `schemas/performance/v0/performance_fact.schema.json`
 
 One funded location's network performance over one measurement period, carrying both the observed central values and the per-test counts that BEAD compliance is actually judged on. Rationale: NTIA judges BEAD last-mile performance on four thresholds evaluated over populations of discrete tests, not on averages. Speed compliance requires that 80 percent of download measurements land at or above 80 percent of the required download speed, and separately the same for upload. Latency compliance requires that 95 percent or more of round-trip latency measurements land at or below 100 milliseconds. Availability compliance requires that average outage time stay under 48 hours across a 365-day period, which corresponds to roughly 99.45 percent uptime. A record that reports only mean speed and mean latency cannot answer any of those four questions, so this schema carries the numerator and denominator for each.
 
-16 required fields, 10 optional. `additionalProperties` is `false`: unknown fields are rejected, which keeps private extensions out of a format meant to be adopted sector-wide.
+16 required fields, 11 optional. `additionalProperties` is `false`: unknown fields are rejected, which keeps private extensions out of a format meant to be adopted sector-wide.
 
 #### `schema_version`
 
@@ -155,6 +310,12 @@ Count of latency tests with round-trip time at or below 100 milliseconds. Must n
 **Required.** Type `number`. Constraints: at least 0; at most 100.
 
 Observed availability for the period, as a percentage. The NTIA availability standard of no more than 48 outage hours over any 365-day period corresponds to about 99.45 percent.
+
+#### `tests_not_run_total`
+
+Optional. Type `integer`. Constraints: at least 0.
+
+Optional count of test attempts that did not produce a measurement, across all directions. NTIA permits deferring a speed test when consumer cross-traffic exceeds 10 percent of the committed speed in the relevant direction, and permits reporting that no test completed in a testing hour for that reason. Such an attempt is not a failed measurement, so it is excluded from the threshold denominators, but recording it separately keeps the exclusion visible rather than silent.
 
 #### `outage_hours_365d`
 
@@ -526,6 +687,22 @@ or `72`, depending on spectrum.
 Rules spanning more than one field. Implemented in the pydantic models, and in the
 JSON Schema through conditional `allOf` blocks where it can express them. Each has
 a dedicated test.
+
+**Performance Test** — a successful test must carry the measurement it claims to have taken
+
+> A successful speed test needs bytes and an end time; a successful latency test needs a round-trip time and packet counts. Without them there is no measurement, only an assertion that one happened.
+
+**Performance Test** — a test that did not run must not carry a result
+
+> NTIA permits reporting that no test completed in a testing hour because consumer cross-traffic exceeded the threshold. Such an attempt has no measurement, and a record claiming one would be reporting a result that was never observed.
+
+**Performance Test** — `packets_received` must not exceed `packets_sent`
+
+> Arithmetically impossible, and the shape a corrupted or synthesised latency record tends to take.
+
+**Performance Test** — a successful speed test must span at least 15 seconds
+
+> NTIA sets a minimum speed-test duration of 15 seconds. A shorter measurement is not a compliant test, and accepting one silently would let a non-compliant methodology produce results that look valid.
 
 **Performance Fact** — `period_end` must be at or after `period_start`
 

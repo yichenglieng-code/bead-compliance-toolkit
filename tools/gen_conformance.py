@@ -114,11 +114,54 @@ BABA_WAIVER = {
     "provenance": dict(PROVENANCE),
 }
 
+TEST_SPEED = {
+    "schema_version": SCHEMA_VERSION,
+    "test_id": "3f1c9a2b-6d4e-4f81-9c27-8a5b0e3d7f60",
+    "location_ref": "BSL-1002003004",
+    "subscriber_ref": "SUB-8f21a4",
+    "state_or_territory": "NV",
+    "technology_code": 71,
+    "committed_down_mbps": 100.0,
+    "committed_up_mbps": 20.0,
+    "test_type": "download",
+    "test_status": "success",
+    "started_at": "2026-07-06T19:03:01.123-07:00",
+    "ended_at": "2026-07-06T19:03:17.456-07:00",
+    "ip_target": "ixp-lasvegas-1.example-isp.example",
+    "bytes_transferred": 640000000,
+    "measurement_method": "ont_cpe_builtin",
+    "device_class": "remote_node",
+    "provenance": dict(PROVENANCE),
+}
+
+TEST_LATENCY = {
+    "schema_version": SCHEMA_VERSION,
+    "test_id": "4a2d8b13-7e5f-4c92-8d31-9b6c1f4e8a72",
+    "location_ref": "BSL-1002003004",
+    "subscriber_ref": "SUB-8f21a4",
+    "state_or_territory": "NV",
+    "technology_code": 71,
+    "committed_down_mbps": 100.0,
+    "committed_up_mbps": 20.0,
+    "test_type": "latency",
+    "test_status": "success",
+    "started_at": "2026-07-06T19:30:00.000-07:00",
+    "ip_target": "ixp-lasvegas-1.example-isp.example",
+    "latency_ms_rtt": 21.4,
+    "packets_sent": 3,
+    "packets_received": 3,
+    "measurement_method": "ont_cpe_builtin",
+    "device_class": "remote_node",
+    "provenance": dict(PROVENANCE),
+}
+
 BASE = {
     "performance": PERFORMANCE,
     "location": LOCATION,
     "baba_cert": BABA_CERT,
     "baba_waiver": BABA_WAIVER,
+    "test_speed": TEST_SPEED,
+    "test_latency": TEST_LATENCY,
 }
 
 SCHEMA_OF = {
@@ -126,6 +169,8 @@ SCHEMA_OF = {
     "location": "location",
     "baba_cert": "baba",
     "baba_waiver": "baba",
+    "test_speed": "test",
+    "test_latency": "test",
 }
 
 
@@ -624,11 +669,168 @@ def cases() -> list[Case]:
         ),
     ]
 
+    # ------------------------------------------------- raw test observations
+    out += [
+        Case(
+            "test/valid_speed",
+            "test_speed",
+            "A successful download observation.",
+            "Baseline for a speed observation. Bytes and duration are carried rather than "
+            "a precomputed throughput, so the figure is reproducible by whoever reads it.",
+            True,
+        ),
+        Case(
+            "test/valid_latency",
+            "test_latency",
+            "A successful latency observation.",
+            "Baseline for a latency observation.",
+            True,
+        ),
+        Case(
+            "test/valid_lost_packets",
+            "test_latency",
+            "A latency observation where every packet was lost.",
+            "NTIA requires lost-packet tests to be recorded and forbids discarding them; "
+            "they count as discrete tests that do not meet the standard. So this must "
+            "validate. Rejecting it would push implementers toward dropping exactly the "
+            "measurements the rule exists to protect.",
+            True,
+            patch={"packets_received": 0},
+        ),
+        Case(
+            "test/valid_deferred_for_crosstalk",
+            "test_speed",
+            "A speed test deferred because consumer load exceeded the threshold.",
+            "NTIA permits deferring a test when consumer traffic exceeds 10 percent of the "
+            "committed speed in the relevant direction, and permits reporting that no test "
+            "completed for that hour. The attempt is still recorded; a test that did not "
+            "run is not the same as a test that never existed.",
+            True,
+            remove=["ended_at", "bytes_transferred", "ip_target"],
+            patch={"test_status": "not_run_crosstalk"},
+        ),
+        Case(
+            "test/success_speed_without_bytes",
+            "test_speed",
+            "A successful speed test with no bytes_transferred.",
+            "Without bytes there is no measurement, only an assertion that one happened.",
+            False,
+            remove=["bytes_transferred"],
+            expect_fields=["bytes_transferred"],
+        ),
+        Case(
+            "test/success_speed_without_end",
+            "test_speed",
+            "A successful speed test with no ended_at.",
+            "Duration is what converts transferred bytes into a throughput figure.",
+            False,
+            remove=["ended_at"],
+            expect_fields=["ended_at"],
+        ),
+        Case(
+            "test/success_latency_without_rtt",
+            "test_latency",
+            "A successful latency test with no round-trip time.",
+            "The measurement the test exists to take.",
+            False,
+            remove=["latency_ms_rtt"],
+            expect_fields=["latency_ms_rtt"],
+        ),
+        Case(
+            "test/success_latency_without_packet_counts",
+            "test_latency",
+            "A successful latency test with no packet counts.",
+            "Packet counts are what make loss visible; without them a fully lost test is "
+            "indistinguishable from a clean one.",
+            False,
+            remove=["packets_sent", "packets_received"],
+            expect_fields=["packets_sent", "packets_received"],
+        ),
+        Case(
+            "test/not_run_but_carries_a_result",
+            "test_speed",
+            "A test marked not run that still reports bytes transferred.",
+            "A test that did not run cannot have produced a measurement. This is the shape "
+            "a fabricated or mis-stitched record takes.",
+            False,
+            patch={"test_status": "not_run_other"},
+            expect_fields=["bytes_transferred"],
+        ),
+        Case(
+            "test/packets_received_exceeds_sent",
+            "test_latency",
+            "More packets received than were sent.",
+            "Arithmetically impossible.",
+            False,
+            patch={"packets_received": 4},
+            expect_fields=["packets_received"],
+        ),
+        Case(
+            "test/speed_test_shorter_than_15_seconds",
+            "test_speed",
+            "A successful speed test spanning 5 seconds.",
+            "NTIA sets a minimum speed-test duration of 15 seconds. A shorter measurement "
+            "is not a compliant test, and accepting it silently would let a non-compliant "
+            "methodology produce results that look valid.",
+            False,
+            patch={"ended_at": "2026-07-06T19:03:06.123-07:00"},
+            expect_fields=["ended_at"],
+        ),
+        Case(
+            "test/end_before_start",
+            "test_speed",
+            "ended_at precedes started_at.",
+            "A negative duration is not a measurement.",
+            False,
+            patch={"ended_at": "2026-07-06T19:02:00.000-07:00"},
+            expect_fields=["ended_at"],
+        ),
+        Case(
+            "test/enum_test_type_invalid",
+            "test_speed",
+            "test_type is not one of download, upload, or latency.",
+            "Download and upload are separate types because NTIA counts the two directions "
+            "separately and each must independently satisfy the standard.",
+            False,
+            patch={"test_type": "throughput"},
+            expect_fields=["test_type"],
+        ),
+        Case(
+            "test/enum_test_status_invalid",
+            "test_speed",
+            "test_status is outside the status vocabulary.",
+            "Status values map onto the USAC template's numeric status codes.",
+            False,
+            patch={"test_status": "failed"},
+            expect_fields=["test_status"],
+        ),
+        Case(
+            "test/missing_started_at",
+            "test_speed",
+            "started_at is absent.",
+            "Without a start time the observation cannot be placed in a testing window.",
+            False,
+            remove=["started_at"],
+            expect_fields=["started_at"],
+        ),
+        Case(
+            "test/pattern_test_id_not_uuid4",
+            "test_speed",
+            "test_id is not a UUID v4.",
+            "The id is assigned where the test runs, so that a retry after a network "
+            "failure stays distinguishable from a genuinely duplicated test.",
+            False,
+            patch={"test_id": "test-1"},
+            expect_fields=["test_id"],
+        ),
+    ]
+
     # ------------------------------------------------------------- strictness
     for base, label in (
         ("performance", "performance"),
         ("location", "location"),
         ("baba_cert", "baba"),
+        ("test_speed", "test"),
     ):
         out.append(
             Case(

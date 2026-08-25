@@ -1,0 +1,33 @@
+{
+  "conformance_suite_version": "0.1.0",
+  "name": "test/valid_lost_packets",
+  "schema": "test",
+  "description": "A latency observation where every packet was lost.",
+  "rationale": "NTIA requires lost-packet tests to be recorded and forbids discarding them; they count as discrete tests that do not meet the standard. So this must validate. Rejecting it would push implementers toward dropping exactly the measurements the rule exists to protect.",
+  "valid": true,
+  "instance": {
+    "schema_version": "0.1.0",
+    "test_id": "4a2d8b13-7e5f-4c92-8d31-9b6c1f4e8a72",
+    "location_ref": "BSL-1002003004",
+    "subscriber_ref": "SUB-8f21a4",
+    "state_or_territory": "NV",
+    "technology_code": 71,
+    "committed_down_mbps": 100.0,
+    "committed_up_mbps": 20.0,
+    "test_type": "latency",
+    "test_status": "success",
+    "started_at": "2026-07-06T19:30:00.000-07:00",
+    "ip_target": "ixp-lasvegas-1.example-isp.example",
+    "latency_ms_rtt": 21.4,
+    "packets_sent": 3,
+    "packets_received": 0,
+    "measurement_method": "ont_cpe_builtin",
+    "device_class": "remote_node",
+    "provenance": {
+      "source_org": "Example Rural ISP",
+      "collected_by": "field-telemetry-collector",
+      "collected_at": "2026-08-01T04:00:00Z",
+      "tool": "bead-data 0.1.0"
+    }
+  }
+}
