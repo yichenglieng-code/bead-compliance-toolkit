@@ -171,3 +171,109 @@ def test_changelog_mentions_the_current_version() -> None:
 
     changelog = (REPO / "CHANGELOG.md").read_text(encoding="utf-8")
     assert __version__ in changelog, f"CHANGELOG.md does not mention version {__version__}"
+
+
+# ------------------------------------------------------------ documentation
+
+
+HANDOVER_DOCS = [
+    "ARCHITECTURE.md",
+    "GOVERNANCE.md",
+    "RELEASING.md",
+    "CODE_OF_CONDUCT.md",
+    "docs/extending.md",
+    "docs/decisions.md",
+    "docs/glossary.md",
+    ".github/PULL_REQUEST_TEMPLATE.md",
+]
+
+
+@pytest.mark.parametrize("relpath", HANDOVER_DOCS)
+def test_handover_documentation_exists(relpath: str) -> None:
+    """A third party should be able to take this over without asking anyone."""
+    path = REPO / relpath
+    assert path.is_file(), f"{relpath} is missing"
+    assert len(path.read_text(encoding="utf-8").split()) > 120, f"{relpath} is a stub"
+
+
+def test_readme_links_every_markdown_doc() -> None:
+    """Documentation nobody can find is documentation nobody reads."""
+    readme = (REPO / "README.md").read_text(encoding="utf-8")
+    linked = set(re.findall(r"\]\(([^)]+)\)", readme))
+
+    tracked = [
+        p.relative_to(REPO).as_posix()
+        for p in REPO.rglob("*.md")
+        if "node_modules" not in p.parts
+        and ".venv" not in p.parts
+        and p.name != "README.md"
+        and "ISSUE_TEMPLATE" not in p.parts
+        and "PULL_REQUEST_TEMPLATE" not in p.name
+    ]
+
+    unlinked = [t for t in tracked if not any(t in link for link in linked)]
+    assert not unlinked, f"not reachable from README.md: {sorted(unlinked)}"
+
+
+def test_all_relative_doc_links_resolve() -> None:
+    broken = []
+    for md in REPO.rglob("*.md"):
+        if "node_modules" in md.parts or ".venv" in md.parts:
+            continue
+        for label, target in re.findall(r"\[([^\]]+)\]\(([^)]+)\)", md.read_text(encoding="utf-8")):
+            if target.startswith(("http://", "https://", "#", "mailto:")):
+                continue
+            path = target.split("#")[0]
+            if path and not (md.parent / path).resolve().exists():
+                broken.append(f"{md.relative_to(REPO)}: [{label}]({target})")
+    assert not broken, broken
+
+
+def test_every_source_module_is_named_in_architecture() -> None:
+    """A module absent from the map is a module a newcomer will not find."""
+    architecture = (REPO / "ARCHITECTURE.md").read_text(encoding="utf-8")
+    modules = [p.stem for p in (REPO / "src" / "bead_data").glob("*.py") if p.stem != "__init__"]
+    missing = [m for m in modules if f"{m}.py" not in architecture]
+    assert not missing, f"ARCHITECTURE.md does not mention: {sorted(missing)}"
+
+
+def test_thresholds_module_has_no_internal_imports() -> None:
+    """It is the dependency-free base of the import graph; keep it that way."""
+    import ast
+
+    tree = ast.parse((REPO / "src" / "bead_data" / "thresholds.py").read_text(encoding="utf-8"))
+    internal = [
+        node.module
+        for node in ast.walk(tree)
+        if isinstance(node, ast.ImportFrom) and (node.module or "").startswith("bead_data")
+    ]
+    assert not internal, f"thresholds.py must not import from the package: {internal}"
+
+
+def test_no_import_cycles_between_modules() -> None:
+    """The layering in ARCHITECTURE.md is only true if nothing reintroduces a cycle."""
+    import ast
+
+    graph: dict[str, set[str]] = {}
+    for path in (REPO / "src" / "bead_data").glob("*.py"):
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        deps = {
+            node.module.split(".")[-1]
+            for node in ast.walk(tree)
+            if isinstance(node, ast.ImportFrom) and (node.module or "").startswith("bead_data")
+        }
+        graph[path.stem] = deps - {path.stem, "bead_data"}
+
+    cycles: list[list[str]] = []
+
+    def walk(node: str, path: list[str]) -> None:
+        for dep in sorted(graph.get(node, ())):
+            if dep in path:
+                cycles.append(path[path.index(dep) :] + [dep])
+            else:
+                walk(dep, path + [dep])
+
+    for node in sorted(graph):
+        walk(node, [node])
+
+    assert not cycles, f"import cycles: {cycles}"

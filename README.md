@@ -240,10 +240,38 @@ a pass.
 - Publication to a public package registry
 - Bindings in additional languages, if there is demand for them
 
+## Documentation
+
+| If you want to | Read |
+|---|---|
+| Understand the problem and why this exists | [docs/why.md](docs/why.md) |
+| See it work end to end | [examples/walkthrough.md](examples/walkthrough.md) |
+| Look up a field | [docs/schema_reference.md](docs/schema_reference.md) |
+| Check a federal requirement, or what is unverified | [docs/sources.md](docs/sources.md) |
+| Decode the jargon | [docs/glossary.md](docs/glossary.md) |
+| Understand the codebase | [ARCHITECTURE.md](ARCHITECTURE.md) |
+| Change or extend something | [docs/extending.md](docs/extending.md) |
+| Know why something is the way it is | [docs/decisions.md](docs/decisions.md) |
+| Implement the schemas elsewhere | [conformance/README.md](conformance/README.md) |
+| See a second implementation | [bindings/typescript/README.md](bindings/typescript/README.md) |
+| Wire up dashboards and alerts | [dashboards/README.md](dashboards/README.md) |
+| Understand the upstream factory side | [docs/patterns/factory_test_orchestration.md](docs/patterns/factory_test_orchestration.md) |
+| Contribute | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| Know how the project is run, or take it over | [GOVERNANCE.md](GOVERNANCE.md) |
+| Cut a release | [RELEASING.md](RELEASING.md) |
+| See what changed | [CHANGELOG.md](CHANGELOG.md) |
+| Report a vulnerability | [SECURITY.md](SECURITY.md) |
+
 ## Contributing
 
 Issues and pull requests are welcome, particularly from people who file BEAD reports and
-can say where the schemas are wrong. See [CONTRIBUTING.md](CONTRIBUTING.md).
+can say where the schemas are wrong. See [CONTRIBUTING.md](CONTRIBUTING.md), and
+[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+
+If you are picking this up cold, [ARCHITECTURE.md](ARCHITECTURE.md) and
+[docs/extending.md](docs/extending.md) are written for exactly that. The project is
+maintained by one person and [GOVERNANCE.md](GOVERNANCE.md) says plainly what that means,
+including what to do if the maintainer goes quiet.
 
 ## License and use
 
