@@ -105,6 +105,7 @@ def factory_export(rng: random.Random) -> list[dict]:
                 "measurement_method": "ont_cpe_builtin",
                 "device_class": device_class,
                 "sample_set_id": "NV-71-100x20-2026",
+                "sample_population_active_subscribers": 50,
                 "is_cai": False,
                 "provenance": provenance(
                     MANUFACTURER,
@@ -162,6 +163,7 @@ def field_telemetry(rng: random.Random) -> list[dict]:
                 "measurement_method": "ont_cpe_builtin",
                 "device_class": "remote_node",
                 "sample_set_id": "NV-71-100x20-2026",
+                "sample_population_active_subscribers": 50,
                 "is_cai": False,
                 "provenance": provenance(
                     ISP,
@@ -208,6 +210,7 @@ def field_telemetry(rng: random.Random) -> list[dict]:
                 "measurement_method": "cwmp_tr069",
                 "device_class": "cpe",
                 "sample_set_id": "NV-72-100x20-2026",
+                "sample_population_active_subscribers": 4,
                 "is_cai": False,
                 "provenance": provenance(
                     ISP,

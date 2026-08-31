@@ -14,6 +14,7 @@ If you only read one thing here, read [The two invariants](#the-two-invariants).
               ▼
   ┌───────────────────────────┐
   │  thresholds.py            │  federal numbers, no imports
+  │  sampling.py              │  section 3.2 sample-size arithmetic
   │  schemas.py               │  locate + load + compile schemas
   └───────────┬───────────────┘
               ▼
@@ -32,7 +33,7 @@ If you only read one thing here, read [The two invariants](#the-two-invariants).
   └───────────┬───────────────┘
               ▼
   ┌───────────────────────────┐
-  │  report.py                │  sample sets → four threshold verdicts → Markdown
+  │  report.py                │  sampling + four threshold verdicts → Markdown
   │  metrics.py               │  the same verdicts → Prometheus exposition
   └───────────┬───────────────┘
               ▼
@@ -47,13 +48,14 @@ reasonable thing to add if you want to keep it that way.
 | Module | Lines | Responsibility |
 |---|---|---|
 | `thresholds.py` | ~130 | Every federal number, and nothing else. No imports from the package. |
+| `sampling.py` | ~45 | NTIA section 3.2 sample-size arithmetic, including ceiling at the 10% boundary. |
 | `schemas.py` | ~180 | Find the schema files, load them, compile validators, hold the FCC technology code table and the `FACT_KINDS` registry. |
 | `models.py` | ~450 | Pydantic models bound to the schemas. Carries the cross-field rules. |
 | `convert.py` | ~215 | Lossless conversion between JSON, CSV, and Parquet. |
 | `validate.py` | ~400 | Reading files, detecting which schema applies, two-pass validation, per-field error reporting. |
 | `aggregate.py` | ~250 | Rolling raw observations into per-location facts. |
 | `submit.py` | ~280 | Writing the USAC submission templates. |
-| `report.py` | ~700 | Sample-set grouping, the four threshold evaluations, Markdown rendering. |
+| `report.py` | ~760 | Sample-set grouping, sampling and four threshold evaluations, Markdown rendering. |
 | `metrics.py` | ~310 | Prometheus exposition of the same numbers. |
 | `cli.py` | ~450 | Click commands, exit codes. Contains no domain logic. |
 
@@ -66,8 +68,10 @@ reasonable thing to add if you want to keep it that way.
 - **A validation error is unhelpful** → `validate.py`, specifically `_json_path` and
   `_schema_error_fields`. Naming the offending field is a deliberate feature; see
   invariant 2 below.
-- **A compliance verdict looks wrong** → `report.py`, class `SampleSet`. Each
-  threshold is one method.
+- **A sample-size minimum is wrong** → `sampling.py` and the constants in
+  `thresholds.py`.
+- **A compliance verdict looks wrong** → `report.py`, class `SampleSet`. Sampling
+  and each performance threshold have their own methods.
 - **Output format** → `convert.py` for containers, `submit.py` for USAC, `report.py`
   for Markdown, `metrics.py` for Prometheus.
 
@@ -193,5 +197,5 @@ schema validator is sufficient.
    synthetic data.
 3. `schemas/performance/v0/performance_fact.schema.json` — the field descriptions
    carry the reporting rationale.
-4. `src/bead_data/report.py`, class `SampleSet` — the four thresholds, one method
-   each. This is the core of what the toolkit does.
+4. `src/bead_data/report.py`, class `SampleSet` — sampling and the four performance
+   thresholds, one method each. This is the core of what the toolkit does.

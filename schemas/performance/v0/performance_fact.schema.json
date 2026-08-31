@@ -183,6 +183,11 @@
         "NV-71-100x20-2026"
       ]
     },
+    "sample_population_active_subscribers": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Optional total active subscribers in the full sample population for this fact: the same subgrantee, state or territory, FCC technology code, and committed speed tier, counted across all of the subgrantee's BEAD-funded projects. Repeat the same value on every fact in a sample set. The report uses it to enforce NTIA's sample-size rule: test every subscriber when there are 5 or fewer, test 5 locations for populations of 6 through 50, test at least 10 percent (rounded up) for 51 through 500, and test 50 locations above 500. This is population metadata, not a count of the tests conducted at this one location."
+    },
     "is_cai": {
       "type": "boolean",
       "default": false,

@@ -105,16 +105,17 @@ Not adoption metrics. Concretely:
 
 ## What this is not
 
-- **Not a submission system.** NTIA designates the USAC PMM CSV format for actual
-  submission, which is per-test rather than per-location-per-period. These schemas
-  are the interchange layer above it. An emitter is on the roadmap.
+- **Not the submission authority.** `bead-data submit` emits the USAC PMM CSV files
+  NTIA designates, but a person still supplies the officer certification and the
+  documented random-selection method listed in the generated manifest.
 - **Not a compliance determination.** `bead-data report` produces an *indicative*
   verdict from submitted data. The binding determination belongs to the Eligible
-  Entity and NTIA, who also weigh testing methodology, sampling method, and
-  transparency obligations no data file expresses.
-- **Not a sampling validator.** Whether the right locations were randomly selected,
-  and whether sample size matches active subscriber count, is outside what these
-  records can prove.
+  Entity and NTIA, who also weigh testing methodology, random selection, and
+  transparency obligations no arithmetic check can prove.
+- **Not proof that a sample was drawn honestly.** The report validates the sample
+  size against `sample_population_active_subscribers`, including every section 3.2
+  boundary. It cannot prove that the declared population is true or that the tested
+  locations were selected randomly.
 - **Not affiliated with anyone.** Independent project, not endorsed by or sponsored
   by NTIA, the FCC, USAC, or any manufacturer or provider.
 

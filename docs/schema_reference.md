@@ -31,7 +31,7 @@ requirement behind each one is cited to a primary NTIA, FCC, or USAC source in
 
 One discrete speed or latency observation, as actually conducted. Rationale: NTIA defines a test as a single discrete observation of speed or latency taken from the customer premises of an active subscriber to a remote server at or reached through an FCC-designated internet exchange point, and designates the USAC performance measurement CSV templates for submission. Those templates are per-test, not per-period. This schema is that level. It matters for a reason beyond format conversion: when the aggregate counts in performance_fact are derived from these records rather than asserted by a submitter, a filtered denominator becomes arithmetically impossible instead of merely prohibited.
 
-11 required fields, 12 optional. `additionalProperties` is `false`: unknown fields are rejected, which keeps private extensions out of a format meant to be adopted sector-wide.
+11 required fields, 13 optional. `additionalProperties` is `false`: unknown fields are rejected, which keeps private extensions out of a format meant to be adopted sector-wide.
 
 #### `schema_version`
 
@@ -161,6 +161,12 @@ Optional. Type `string`. Constraints: non-empty.
 
 Optional grouping key for the sample set this observation belongs to.
 
+#### `sample_population_active_subscribers`
+
+Optional. Type `integer`. Constraints: at least 0.
+
+Optional total active subscribers in this observation's full sample population: the same subgrantee, state or territory, FCC technology code, and committed speed tier, counted across all of the subgrantee's BEAD-funded projects. Repeat the same value on every observation in a sample set so aggregation can carry it into performance facts and the report can validate the NTIA sample-size minimum.
+
 #### `is_cai`
 
 Optional. Type `boolean`. Constraints: defaults to `false`.
@@ -185,7 +191,7 @@ Optional free-text note, carried through to the USAC template's comment column. 
 
 One funded location's network performance over one measurement period, carrying both the observed central values and the per-test counts that BEAD compliance is actually judged on. Rationale: NTIA judges BEAD last-mile performance on four thresholds evaluated over populations of discrete tests, not on averages. Speed compliance requires that 80 percent of download measurements land at or above 80 percent of the required download speed, and separately the same for upload. Latency compliance requires that 95 percent or more of round-trip latency measurements land at or below 100 milliseconds. Availability compliance requires that average outage time stay under 48 hours across a 365-day period, which corresponds to roughly 99.45 percent uptime. A record that reports only mean speed and mean latency cannot answer any of those four questions, so this schema carries the numerator and denominator for each.
 
-16 required fields, 11 optional. `additionalProperties` is `false`: unknown fields are rejected, which keeps private extensions out of a format meant to be adopted sector-wide.
+16 required fields, 12 optional. `additionalProperties` is `false`: unknown fields are rejected, which keeps private extensions out of a format meant to be adopted sector-wide.
 
 #### `schema_version`
 
@@ -342,6 +348,12 @@ Optional. Type `string`. Constraints: non-empty.
 Optional grouping key for the sample set this fact belongs to. An NTIA sample set is the collection of test subjects within one state or territory, served by one provider, on one technology, under one committed speed tier. Compliance is evaluated per sample set, so carrying the grouping key makes aggregation reproducible.
 
 Examples: `NV-71-100x20-2026`
+
+#### `sample_population_active_subscribers`
+
+Optional. Type `integer`. Constraints: at least 0.
+
+Optional total active subscribers in the full sample population for this fact: the same subgrantee, state or territory, FCC technology code, and committed speed tier, counted across all of the subgrantee's BEAD-funded projects. Repeat the same value on every fact in a sample set. The report uses it to enforce NTIA's sample-size rule: test every subscriber when there are 5 or fewer, test 5 locations for populations of 6 through 50, test at least 10 percent (rounded up) for 51 through 500, and test 50 locations above 500. This is population metadata, not a count of the tests conducted at this one location.
 
 #### `is_cai`
 

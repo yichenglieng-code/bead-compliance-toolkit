@@ -151,11 +151,12 @@ Two sample sets, because NTIA separates them by technology: `71` is licensed
 spectrum, `72` is licensed-by-rule spectrum such as CBRS general authorized access.
 They are judged independently, and here they diverge.
 
-The licensed set clears everything:
+The licensed set clears sampling and all four performance thresholds:
 
 ```text
-| Threshold                                | Observed                        | Required      | Verdict |
+| Check                                    | Observed                        | Required      | Verdict |
 |------------------------------------------|---------------------------------|---------------|---------|
+| Sample size                              | 6 locations from 50 subscribers | at least 5    | PASS    |
 | Download (at or above 80 Mbps)           | 96.83% (244 of 252 tests)       | at least 80%  | PASS    |
 | Upload (at or above 16 Mbps)             | 96.83% (244 of 252 tests)       | at least 80%  | PASS    |
 | Latency (at or below 100 ms)             | 99.05% (14,977 of 15,120 tests) | at least 95%  | PASS    |
@@ -165,8 +166,9 @@ The licensed set clears everything:
 The CBRS set does not:
 
 ```text
-| Threshold                                | Observed                        | Required      | Verdict |
+| Check                                    | Observed                        | Required      | Verdict |
 |------------------------------------------|---------------------------------|---------------|---------|
+| Sample size                              | 4 locations from 4 subscribers  | all 4         | PASS    |
 | Download (at or above 80 Mbps)           | 90.48% (152 of 168 tests)       | at least 80%  | PASS    |
 | Upload (at or above 16 Mbps)             | 59.52% (100 of 168 tests)       | at least 80%  | FAIL    |
 | Latency (at or below 100 ms)             | 96.72% (9,749 of 10,080 tests)  | at least 95%  | PASS    |
@@ -237,14 +239,14 @@ rejects a filtered one.
 ## Honest limits
 
 - The verdict is **indicative**. The binding determination belongs to the Eligible
-  Entity and NTIA, who also weigh testing methodology, sampling method, and
-  transparency obligations that no data file expresses.
-- NTIA designates the USAC PMM CSV format for actual submission, which is per-test
-  rather than per-location-per-period. These schemas are the interchange layer
-  above that. An emitter for the USAC format is on the roadmap.
-- Sampling is not validated here. Whether the right locations were randomly
-  selected, and whether the sample size matches the active subscriber count, is
-  outside what these records can prove.
+  Entity and NTIA, who also weigh testing methodology, whether the declared population
+  is complete, random selection, and transparency obligations that arithmetic cannot
+  prove.
+- `bead-data submit` emits NTIA's designated USAC PMM CSV format, but the officer
+  certification and documented random-selection method still require a person.
+- Sampling arithmetic is validated against the reported active-subscriber
+  population. The tool cannot prove that population was reported truthfully or
+  that the tested locations were selected randomly.
 
 Thresholds used above are cited to primary sources in
 [`../docs/sources.md`](../docs/sources.md).

@@ -68,6 +68,7 @@ class LocationRollup:
     committed_up_mbps: float
     is_cai: bool = False
     sample_set_id: str | None = None
+    sample_population_active_subscribers: int | None = None
     device_class: str | None = None
     measurement_method: str | None = None
     tests: list[PerformanceTest] = field(default_factory=list)
@@ -135,6 +136,7 @@ def aggregate_tests(records: list[dict]) -> list[dict]:
                 committed_up_mbps=test.committed_up_mbps,
                 is_cai=test.is_cai,
                 sample_set_id=test.sample_set_id,
+                sample_population_active_subscribers=(test.sample_population_active_subscribers),
                 device_class=test.device_class,
                 measurement_method=test.measurement_method,
                 tests=[test],
@@ -146,6 +148,7 @@ def aggregate_tests(records: list[dict]) -> list[dict]:
             "technology_code",
             "committed_down_mbps",
             "committed_up_mbps",
+            "sample_population_active_subscribers",
         ):
             if getattr(existing, attr) != getattr(test, attr):
                 raise AggregationError(
@@ -220,6 +223,10 @@ def aggregate_tests(records: list[dict]) -> list[dict]:
         }
         if rollup.sample_set_id:
             fact["sample_set_id"] = rollup.sample_set_id
+        if rollup.sample_population_active_subscribers is not None:
+            fact["sample_population_active_subscribers"] = (
+                rollup.sample_population_active_subscribers
+            )
         if not_run:
             fact["tests_not_run_total"] = not_run
         if first.provenance.methodology_ref:

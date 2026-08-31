@@ -53,6 +53,7 @@ def make_set(**overrides) -> SampleSet:
         "latency_tests_at_or_below_100ms": 100,
         "uptime_pct": 99.9,
         "outage_hours_365d": 10.0,
+        "sample_population_active_subscribers": 1,
     }
     fact.update(overrides)
     return SampleSet("NV", 71, 100.0, 20.0, [fact])
@@ -102,6 +103,55 @@ def test_all_thresholds_pass_on_clean_data() -> None:
     sample_set = make_set()
     assert sample_set.verdict() == PASS
     assert all(c.verdict == PASS for c in sample_set.checks())
+
+
+def test_sample_size_is_part_of_the_overall_verdict() -> None:
+    sample_set = make_set(sample_population_active_subscribers=6)
+    check = sample_set.sampling_check()
+
+    assert check.verdict == FAIL
+    assert "1 sampled location" in check.observed
+    assert "at least 5" in check.required
+    assert sample_set.verdict() == FAIL
+
+
+def test_missing_sample_population_is_no_data_not_pass() -> None:
+    sample_set = make_set()
+    del sample_set.facts[0]["sample_population_active_subscribers"]
+
+    assert sample_set.sampling_check().verdict == NO_DATA
+    assert sample_set.verdict() == NO_DATA
+
+
+def test_incomplete_sample_population_is_no_data() -> None:
+    first = make_set().facts[0]
+    second = {**first, "location_ref": "BSL-1002003005"}
+    del second["sample_population_active_subscribers"]
+    sample_set = SampleSet("NV", 71, 100.0, 20.0, [first, second])
+
+    assert sample_set.sampling_check().verdict == NO_DATA
+
+
+def test_conflicting_sample_population_fails() -> None:
+    first = make_set(sample_population_active_subscribers=10).facts[0]
+    second = {
+        **first,
+        "location_ref": "BSL-1002003005",
+        "sample_population_active_subscribers": 11,
+    }
+    sample_set = SampleSet("NV", 71, 100.0, 20.0, [first, second])
+
+    assert sample_set.sampling_check().verdict == FAIL
+    assert "conflicting" in sample_set.sampling_check().observed
+
+
+def test_sample_cannot_exceed_population() -> None:
+    first = make_set(sample_population_active_subscribers=1).facts[0]
+    second = {**first, "location_ref": "BSL-1002003005"}
+    sample_set = SampleSet("NV", 71, 100.0, 20.0, [first, second])
+
+    assert sample_set.sampling_check().verdict == FAIL
+    assert "cannot exceed" in sample_set.sampling_check().required
 
 
 def test_download_threshold_boundary_is_inclusive() -> None:

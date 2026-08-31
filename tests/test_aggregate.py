@@ -145,6 +145,21 @@ def test_conflicting_sample_set_attributes_are_rejected() -> None:
         aggregate_tests([speed(200), speed(200, technology_code=72)])
 
 
+def test_sample_population_is_carried_into_derived_fact() -> None:
+    facts = aggregate_tests([speed(200, sample_population_active_subscribers=10)])
+    assert facts[0]["sample_population_active_subscribers"] == 10
+
+
+def test_conflicting_sample_population_is_rejected_during_aggregation() -> None:
+    with pytest.raises(AggregationError, match="sample_population_active_subscribers"):
+        aggregate_tests(
+            [
+                speed(200, sample_population_active_subscribers=10),
+                speed(200, sample_population_active_subscribers=11),
+            ]
+        )
+
+
 def test_conflicting_committed_tier_is_rejected() -> None:
     with pytest.raises(AggregationError, match="conflicting committed_down_mbps"):
         aggregate_tests([speed(200), speed(200, committed_down_mbps=500.0)])

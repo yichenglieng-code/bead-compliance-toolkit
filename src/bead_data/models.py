@@ -134,6 +134,7 @@ class PerformanceFact(BaseModel):
     measurement_method: MeasurementMethod
     device_class: DeviceClass
     sample_set_id: Annotated[str | None, Field(min_length=1, default=None)] = None
+    sample_population_active_subscribers: Annotated[int | None, Field(ge=0, default=None)] = None
     is_cai: bool = False
     provenance: Provenance
 
@@ -325,6 +326,7 @@ class PerformanceTest(BaseModel):
     measurement_method: MeasurementMethod | None = None
     device_class: DeviceClass | None = None
     sample_set_id: Annotated[str | None, Field(min_length=1, default=None)] = None
+    sample_population_active_subscribers: Annotated[int | None, Field(ge=0, default=None)] = None
     is_cai: bool = False
     comment: Annotated[str | None, Field(min_length=1, default=None)] = None
     provenance: Provenance

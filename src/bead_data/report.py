@@ -11,12 +11,14 @@ discrete tests, and a provider is non-compliant if it fails any one of them:
 
 Compliance is evaluated per sample set, where a sample set is the group of test
 subjects in one state or territory, on one technology, under one committed speed
-tier. That grouping is reproduced here.
+tier. That grouping is reproduced here, along with the section 3.2 sample-size
+check that precedes the four performance thresholds.
 
 A note on what this output is. The determination below is **indicative**: it is
 what the submitted data implies. The binding determination is made by the Eligible
-Entity and NTIA, who may also weigh testing methodology, sampling method, and
-transparency obligations that no data file can express. This tool exists so a
+Entity and NTIA, who may also weigh testing methodology, the truth of the reported
+sample population, random selection, and transparency obligations that arithmetic
+cannot prove. This tool exists so a
 submitter finds a problem before the state office does, not to replace the state
 office.
 
@@ -32,6 +34,7 @@ from pathlib import Path
 from typing import Any
 
 from bead_data.aggregate import AggregationError, aggregate_tests
+from bead_data.sampling import required_sample_size
 from bead_data.thresholds import (
     BSL_FLOOR_DOWN_MBPS,
     BSL_FLOOR_UP_MBPS,
@@ -169,6 +172,74 @@ class SampleSet:
     def location_count(self) -> int:
         return len({f["location_ref"] for f in self.facts})
 
+    @property
+    def sample_population(self) -> int | None:
+        """The population count when every fact reports one consistent value."""
+        values = [
+            f.get("sample_population_active_subscribers")
+            for f in self.facts
+            if f.get("sample_population_active_subscribers") is not None
+        ]
+        if len(values) != len(self.facts) or len(set(values)) != 1:
+            return None
+        return values[0]
+
+    def sampling_check(self) -> Check:
+        """Whether the number of distinct tested locations satisfies NTIA section 3.2."""
+        values = [
+            f.get("sample_population_active_subscribers")
+            for f in self.facts
+            if f.get("sample_population_active_subscribers") is not None
+        ]
+        if not values:
+            return Check(
+                "Sample size",
+                NO_DATA,
+                "sample population not reported",
+                "population count required to calculate the minimum",
+            )
+        if len(values) != len(self.facts):
+            return Check(
+                "Sample size",
+                NO_DATA,
+                f"population reported on {len(values)} of {len(self.facts)} fact(s)",
+                "one consistent population count on every fact in the sample set",
+            )
+
+        populations = set(values)
+        if len(populations) != 1:
+            rendered = ", ".join(f"{value:,}" for value in sorted(populations))
+            return Check(
+                "Sample size",
+                FAIL,
+                f"conflicting population counts: {rendered}",
+                "one consistent population count per sample set",
+            )
+
+        population = populations.pop()
+        minimum = required_sample_size(population)
+        sampled = self.location_count
+        if sampled > population:
+            return Check(
+                "Sample size",
+                FAIL,
+                f"{sampled:,} sampled location(s) from {population:,} active subscriber(s)",
+                "sampled locations cannot exceed the active-subscriber population",
+            )
+
+        verdict = PASS if sampled >= minimum else FAIL
+        required = (
+            f"all {population:,} active subscriber(s)"
+            if population <= 5
+            else f"at least {minimum:,} location(s)"
+        )
+        return Check(
+            "Sample size",
+            verdict,
+            f"{sampled:,} sampled location(s) from {population:,} active subscriber(s)",
+            required,
+        )
+
     def required_speeds(self) -> tuple[float, float]:
         """Required download and upload speeds for this sample set.
 
@@ -266,6 +337,7 @@ class SampleSet:
 
     def checks(self) -> list[Check]:
         return [
+            self.sampling_check(),
             self.download_check(),
             self.upload_check(),
             self.latency_check(),
@@ -273,7 +345,7 @@ class SampleSet:
         ]
 
     def verdict(self) -> str:
-        """Overall indicative verdict: any failed threshold means non-compliant."""
+        """Overall indicative verdict: sampling and all four thresholds must pass."""
         checks = self.checks()
         if any(c.failed for c in checks):
             return FAIL
@@ -457,8 +529,8 @@ def render_report(corpus: Corpus, period: str | None = None) -> str:
         "",
         "> This determination is **indicative**: it is what the submitted data implies.",
         "> The binding determination is made by the Eligible Entity and NTIA, who also",
-        "> weigh testing methodology, sampling, and transparency obligations that a data",
-        "> file cannot express.",
+        "> weigh testing methodology, the truth of the reported sample population,",
+        "> random selection, and transparency obligations that arithmetic cannot prove.",
         "",
     ]
 
@@ -470,7 +542,8 @@ def render_report(corpus: Corpus, period: str | None = None) -> str:
     else:
         lines += [
             "A sample set is one state or territory, one technology, one committed speed",
-            "tier. A sample set is non-compliant if it fails any of the four thresholds.",
+            "tier. It must meet the NTIA sample-size rule and all four performance",
+            "thresholds. Missing population evidence produces NO DATA, never PASS.",
             "",
         ]
         sample_sets = group_sample_sets(facts)
@@ -500,7 +573,7 @@ def render_report(corpus: Corpus, period: str | None = None) -> str:
                 "",
             ]
             lines += _table(
-                ["Threshold", "Observed", "Required", "Verdict"],
+                ["Check", "Observed", "Required", "Verdict"],
                 [[c.name, c.observed, c.required, c.verdict] for c in sample_set.checks()],
             )
             lines.append("")

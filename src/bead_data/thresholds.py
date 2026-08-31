@@ -105,6 +105,25 @@ TESTING_HOUR_END = 24
 CROSSTALK_FRACTION = 0.10
 
 # --------------------------------------------------------------------------
+# Sample size
+# --------------------------------------------------------------------------
+
+#: Populations at or below this size test every active subscriber.
+SAMPLE_ALL_SUBSCRIBERS_MAX = 5
+
+#: Populations from 6 through this size test five locations.
+SAMPLE_FIXED_FIVE_POPULATION_MAX = 50
+
+#: Populations from 51 through this size test at least ten percent.
+SAMPLE_PERCENT_POPULATION_MAX = 500
+
+#: Minimum fraction tested in the 51-through-500 population band.
+SAMPLE_PERCENT_FRACTION = 0.10
+
+#: Fixed sample size when the population exceeds 500 active subscribers.
+SAMPLE_LARGE_REQUIRED_LOCATIONS = 50
+
+# --------------------------------------------------------------------------
 # Verdict vocabulary
 # --------------------------------------------------------------------------
 

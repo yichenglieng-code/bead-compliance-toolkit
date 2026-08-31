@@ -166,9 +166,10 @@ should follow.
 **Decision.** Every output says the determination is what the submitted data implies,
 and that the binding determination belongs to the Eligible Entity and NTIA.
 
-**Why.** It is true. Compliance also depends on testing methodology, sampling method,
-and transparency obligations that no data file expresses. Overclaiming would expose
-users to relying on a verdict this tool is not positioned to give.
+**Why.** It is true. The tool can validate sample-size arithmetic against a declared
+population, but it cannot prove that the population is complete, that subjects were
+selected randomly, or that every transparency obligation was met. Overclaiming would
+expose users to relying on a verdict this tool is not positioned to give.
 
 **Revisit if.** Never. If anything, strengthen it.
 
@@ -297,3 +298,26 @@ quietly make the documentation false again.
 
 **Lesson worth keeping.** Verify asserted numbers against the actual data before
 writing them down.
+
+---
+
+## 19. Sampling metadata is repeated, and absence blocks a pass
+
+**Decision.** `sample_population_active_subscribers` is optional on both raw tests
+and performance facts, but when supplied it must repeat consistently across a sample
+set. `report` treats missing or partially reported population metadata as `NO DATA`,
+conflicting values as a failure, and an undersized sample as a failure.
+
+**Why.** NTIA section 3.2 defines the minimum from a sample-set-level population,
+while the existing interchange records are per observation or per location. Repeating
+one small integer preserves the file-first design and lets raw-test aggregation carry
+the evidence without introducing a separate manifest whose join could silently drift.
+
+**Consequences.** The arithmetic can prevent a false pass, but cannot prove that the
+declared active-subscriber population is true or that locations were selected randomly.
+Outputs continue to label the determination indicative and say exactly what remains a
+human responsibility.
+
+**Revisit if.** A future schema version adds a first-class sample-set manifest. That
+would normalize the metadata, but it must retain the same absence and consistency
+semantics.

@@ -4,7 +4,7 @@ Every federal program requirement encoded in these schemas traces to a primary
 source below. Nothing about BEAD, BABA, or FCC reporting is asserted on this
 project's own authority.
 
-Sources were read and the schemas checked against them on **2026-08-24**. Federal
+Sources were read and the schemas checked against them on **2026-08-31**. Federal
 reporting rules change; if you are relying on this toolkit for a live filing,
 re-check the primary sources and please open an issue if something here has gone
 stale.
@@ -39,7 +39,7 @@ number is stated with its source. For the binding text, read the source.
 | `measurement_method` enum | Metrics must come from active measurement, meaning devices or software sending packets to servers at the provider network edge, rather than from classical network management systems. Permitted approaches include CWMP TR-069, TR-369 USP, software on a supplied residential gateway, capability built into an ONT or other CPE, and dedicated measurement devices. | S1 §3.6 |
 | The four-threshold framing in `report` output | A provider is non-compliant if it fails any of the four thresholds — download, upload, latency, or availability — for any applicable speed tier and technology. | S1 §5 |
 | `sample_set_id`, `state_or_territory` | A sample set is the collection of test subjects within one state or territory, served by one provider, on one technology, under one committed speed tier. Compliance is judged per sample set. | S1 §2(e), §3.3 |
-| `active_subscriber_count` rationale | Sample size follows active subscriber counts: 50 or fewer means test 5 locations, or all of them if there are 5 or fewer; 51 through 500 means test at least 10 percent; above 500 means test 50 locations. | S1 §3.2 |
+| `sample_population_active_subscribers`, `active_subscriber_count` rationale | Sample size is based on active subscribers to plans meeting or exceeding the committed speed tier, counted across all of one subgrantee's BEAD-funded projects in the state or territory for that technology and tier. Five or fewer means test all; 6 through 50 means test 5; 51 through 500 means test at least 10 percent; above 500 means test 50. Larger samples are permitted, but every included location's results must be reported. | S1 §3.2–§3.3 |
 | `period_start` / `period_end` | Speed and latency testing runs for one week, by default one measurement period per year, during testing hours of 6:00 pm to 12:00 am local time including weekends. | S1 §3.5, §3.7 |
 
 ### Technology codes
@@ -105,10 +105,10 @@ disclosure.
 
 These are unresolved rather than quietly guessed at:
 
-1. **Per-test raw records.** NTIA designates the USAC PMM CSV format for actual
-   submission (S1 §5, S5), which is per-test rather than per-location-per-period.
-   The schemas here are the per-location interchange layer above that. An emitter
-   for the USAC format is on the roadmap, not in v0.1.
+1. **Sampling provenance.** The toolkit checks the section 3.2 arithmetic against
+   `sample_population_active_subscribers`. It cannot prove the reported population
+   is complete or that locations were selected randomly; the generated submission
+   manifest keeps the random-selection method as an explicit human-supplied item.
 2. **BSL Location ID format.** The Fabric assigns unique Commission-issued Location
    IDs (S4), but this project has not found a published constraint on their lexical
    form, so `location_id` validates only as a non-empty string. Tightening this

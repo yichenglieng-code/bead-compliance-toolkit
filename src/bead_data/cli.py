@@ -420,10 +420,11 @@ def metrics_cmd(path: str, period: str | None, output: str | None) -> None:
     help="Write the Markdown summary to a file instead of stdout.",
 )
 def report_cmd(path: str, period: str | None, output: str | None) -> None:
-    """Summarize an evidence directory against the four NTIA thresholds.
+    """Summarize evidence against NTIA sample-size and performance rules.
 
     Produces a Markdown summary: an indicative compliance verdict per sample set,
-    location counts by build status, and BABA coverage by compliance path.
+    sample-size and threshold checks, location counts by build status, and BABA
+    coverage by compliance path.
     """
     try:
         text = build_report(Path(path), period)

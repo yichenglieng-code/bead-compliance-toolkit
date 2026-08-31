@@ -161,6 +161,11 @@
       "minLength": 1,
       "description": "Optional grouping key for the sample set this observation belongs to."
     },
+    "sample_population_active_subscribers": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Optional total active subscribers in this observation's full sample population: the same subgrantee, state or territory, FCC technology code, and committed speed tier, counted across all of the subgrantee's BEAD-funded projects. Repeat the same value on every observation in a sample set so aggregation can carry it into performance facts and the report can validate the NTIA sample-size minimum."
+    },
     "is_cai": {
       "type": "boolean",
       "default": false,

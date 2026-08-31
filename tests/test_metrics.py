@@ -103,6 +103,34 @@ def test_sample_set_verdicts_match_the_report(exposition) -> None:
     assert verdicts["NV-72-100x20"] == 0.0
 
 
+def test_sampling_population_and_minimum_are_exported(exposition) -> None:
+    families = parse(exposition)
+    populations = {
+        labels["sample_set"]: value
+        for labels, value in families["bead_sample_population_active_subscribers"]
+    }
+    required = {
+        labels["sample_set"]: value for labels, value in families["bead_sample_size_required"]
+    }
+    compliant = {
+        labels["sample_set"]: value for labels, value in families["bead_sample_size_compliant"]
+    }
+
+    assert populations["NV-71-100x20"] == 50
+    assert required["NV-71-100x20"] == 5
+    assert compliant == {"NV-71-100x20": 1.0, "NV-72-100x20": 1.0}
+
+
+def test_sampling_metadata_survives_raw_test_aggregation() -> None:
+    families = parse(metrics_for(EXAMPLES / "synthetic_raw_tests.json", "2026-Q3"))
+    populations = {
+        labels["sample_set"]: value
+        for labels, value in families["bead_sample_population_active_subscribers"]
+    }
+
+    assert populations == {"NV-71-100x20": 50.0, "NV-72-100x20": 4.0}
+
+
 def test_upload_is_the_failing_threshold(exposition) -> None:
     families = parse(exposition)
     failing = {
@@ -175,6 +203,9 @@ def test_missing_data_emits_no_sample_rather_than_zero() -> None:
     set with no failures *and* some missing data is left without a verdict.
     """
     corpus = gather(EXAMPLES)
+    # Keep this test focused on asserted facts. Raw observations would be aggregated
+    # into replacement facts, correctly restoring the latency evidence removed below.
+    corpus.test.clear()
     for fact in corpus.performance:
         fact.pop("latency_tests_total", None)
         fact.pop("latency_tests_at_or_below_100ms", None)

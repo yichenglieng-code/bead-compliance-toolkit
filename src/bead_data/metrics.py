@@ -31,6 +31,7 @@ from bead_data.report import (
     in_period,
     parse_period,
 )
+from bead_data.sampling import required_sample_size
 from bead_data.schemas import technology_name
 from bead_data.thresholds import (
     FAIL,
@@ -119,7 +120,7 @@ def build_metrics(corpus: Corpus, period: str | None = None) -> str:
         start, end, _ = parse_period(period)
         window = (start, end)
 
-    facts = [f for f in corpus.performance if in_period(f, window)]
+    facts = [f for f in corpus.resolve_performance() if in_period(f, window)]
     sample_sets = group_sample_sets(facts)
 
     m = MetricSet()
@@ -158,9 +159,19 @@ def build_metrics(corpus: Corpus, period: str | None = None) -> str:
 
     m.family("sample_set_locations", "Distinct funded locations in a sample set.")
     m.family(
+        "sample_population_active_subscribers",
+        "Active subscribers in the population from which a sample set was drawn.",
+    )
+    m.family("sample_size_required", "Minimum sampled locations required by NTIA section 3.2.")
+    m.family(
+        "sample_size_compliant",
+        "1 when sampled locations satisfy the NTIA sample-size rule, 0 when they do not. "
+        "Absent when population evidence is incomplete.",
+    )
+    m.family(
         "sample_set_compliant",
-        "1 when a sample set clears all four thresholds, 0 when any fails. "
-        "Absent when a threshold has no data.",
+        "1 when a sample set clears sampling and all four performance thresholds, 0 when "
+        "any fails. Absent when a check has no data.",
     )
     m.family(
         "threshold_compliant",
@@ -195,6 +206,14 @@ def build_metrics(corpus: Corpus, period: str | None = None) -> str:
     for sample_set in sample_sets:
         labels = _sample_set_labels(sample_set)
         m.add("sample_set_locations", sample_set.location_count, **labels)
+
+        population = sample_set.sample_population
+        if population is not None:
+            m.add("sample_population_active_subscribers", population, **labels)
+            m.add("sample_size_required", required_sample_size(population), **labels)
+        sampling = _verdict_value(sample_set.sampling_check().verdict)
+        if sampling is not None:
+            m.add("sample_size_compliant", sampling, **labels)
 
         required_down, required_up = sample_set.required_speeds()
         m.add("required_down_mbps", required_down, **labels)

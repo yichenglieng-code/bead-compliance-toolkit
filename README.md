@@ -146,7 +146,7 @@ absent, and integer counts stay integers rather than becoming `42.0`. Conversion
 validates first: invalid input writes nothing and exits `1`, so a bad batch fails on
 your machine instead of at the state office.
 
-### Report against the four thresholds
+### Validate sample size and report the four thresholds
 
 ```bash
 bead-data report path/to/evidence/ --period 2026-Q3
@@ -162,13 +162,17 @@ territory, one technology, one committed speed tier, which is how NTIA groups th
 | NV-72-100x20 | 72        | 100/20    | 4         | **FAIL**           |
 ```
 
-...then per sample set, each threshold with its numerator and denominator, plus
-location counts by build status and BABA coverage by compliance path.
+...then per sample set, the section 3.2 sample-size check and each performance
+threshold with its numerator and denominator, plus location counts by build status
+and BABA coverage by compliance path. Supply
+`sample_population_active_subscribers` on every fact in a sample set; if it is
+missing or inconsistent, the set reports `NO DATA`, never a false pass.
 
 The verdict is **indicative**: it is what the submitted data implies. The binding
 determination belongs to the Eligible Entity and NTIA, who also weigh testing
-methodology, sampling, and transparency obligations no data file can express. The point
-is to find a problem before a reviewer does.
+methodology, whether the declared population is true, random selection, and
+transparency obligations arithmetic cannot prove. The point is to find a problem
+before a reviewer does.
 
 A narrated end-to-end pass — manufacturer export, ISP merge, state office review,
 including a worked example where the average looks fine and the sample set still fails —
@@ -235,8 +239,7 @@ a pass.
 
 ## Roadmap
 
-- Emitter for the USAC PMM CSV format that NTIA designates for actual submission
-- Sampling validation: whether the sample size matches the active subscriber count
+- Outage-event records so availability can be derived rather than supplied
 - Publication to a public package registry
 - Bindings in additional languages, if there is demand for them
 

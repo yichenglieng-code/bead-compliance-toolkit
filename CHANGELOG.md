@@ -12,6 +12,11 @@ to `v0`.
 
 ### Added
 
+- **Sampling validation** — optional `sample_population_active_subscribers` metadata
+  on raw observations and performance facts, section 3.2 boundary arithmetic, and
+  report/Prometheus checks that prevent an undersized or internally inconsistent
+  sample from receiving a passing overall verdict. Missing population evidence is
+  `NO DATA`, not a pass.
 - **`performance_test` schema** — one discrete speed or latency observation, the
   level NTIA actually judges and USAC actually accepts. This is what makes the two
   items below possible.

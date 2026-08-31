@@ -46,6 +46,7 @@ WEEK_START = datetime(2026, 7, 6, tzinfo=OFFSET)
 IXP = "ixp-lasvegas-1.example-isp.example"
 
 MBPS = 1_000_000 / 8  # bytes per second for 1 Mbps
+SAMPLE_POPULATION_BY_TECH = {71: 50, 72: 4}
 
 
 def uuid4(rng: random.Random) -> str:
@@ -89,6 +90,7 @@ def speed_test(
         "measurement_method": "ont_cpe_builtin" if tech == 71 else "cwmp_tr069",
         "device_class": "remote_node" if tech == 71 else "cpe",
         "sample_set_id": f"NV-{tech}-100x20-2026",
+        "sample_population_active_subscribers": SAMPLE_POPULATION_BY_TECH[tech],
         "is_cai": False,
         "provenance": provenance(),
     }
@@ -135,6 +137,7 @@ def latency_test(
         "measurement_method": "ont_cpe_builtin" if tech == 71 else "cwmp_tr069",
         "device_class": "remote_node" if tech == 71 else "cpe",
         "sample_set_id": f"NV-{tech}-100x20-2026",
+        "sample_population_active_subscribers": SAMPLE_POPULATION_BY_TECH[tech],
         "is_cai": False,
         "provenance": provenance(),
         **(
@@ -157,7 +160,7 @@ def build(rng: random.Random) -> list[dict]:
 
     # ---- Sample set A: licensed spectrum (71), comfortably compliant -----------
     for i in range(2):
-        loc = f"BSL-10020{5000 + i:04d}"
+        loc = f"BSL-10020{3000 + i:04d}"
         sub = f"SUB-{rng.getrandbits(24):06x}"
         for n, slot in enumerate(all_slots):
             # A couple of hours fall short, well inside the 80% allowance.
@@ -203,7 +206,7 @@ def build(rng: random.Random) -> list[dict]:
     # bar. That is the whole point of the example: the average passes, the
     # population does not.
     for i in range(2):
-        loc = f"BSL-10020{5100 + i:04d}"
+        loc = f"BSL-10020{3100 + i:04d}"
         sub = f"SUB-{rng.getrandbits(24):06x}"
         clearing = set(rng.sample(range(42), 25))
         for n, slot in enumerate(all_slots):
