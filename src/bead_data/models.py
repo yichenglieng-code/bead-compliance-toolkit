@@ -19,6 +19,8 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from bead_data.thresholds import MIN_SPEED_TEST_SECONDS
+
 SCHEMA_VERSION = "0.1.0"
 
 UUID4_PATTERN = r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
@@ -296,9 +298,6 @@ class BabaEvidence(BaseModel):
 TestType = Literal["download", "upload", "latency"]
 
 TestStatus = Literal["success", "not_run_crosstalk", "not_run_other"]
-
-#: NTIA sets a minimum speed-test duration of 15 seconds.
-MIN_SPEED_TEST_SECONDS = 15
 
 
 class PerformanceTest(BaseModel):

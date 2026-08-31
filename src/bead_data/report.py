@@ -31,41 +31,23 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from bead_data.aggregate import AggregationError, aggregate_tests
+from bead_data.thresholds import (
+    BSL_FLOOR_DOWN_MBPS,
+    BSL_FLOOR_UP_MBPS,
+    CAI_FLOOR_DOWN_MBPS,
+    CAI_FLOOR_UP_MBPS,
+    FAIL,
+    LATENCY_FRACTION,
+    LATENCY_MS_CEILING,
+    NO_DATA,
+    OUTAGE_HOURS_CEILING,
+    PASS,
+    SPEED_MEASUREMENT_FRACTION,
+    SPEED_OF_REQUIRED_FRACTION,
+    UPTIME_PCT_FLOOR,
+)
 from bead_data.validate import InputError, load_records, validate_records
-
-# --------------------------------------------------------------------------
-# Verified NTIA thresholds. See docs/sources.md, source S1.
-# --------------------------------------------------------------------------
-
-#: Fraction of speed measurements that must clear the bar.
-SPEED_MEASUREMENT_FRACTION = 0.80
-
-#: Fraction of the required speed each measurement must reach.
-SPEED_OF_REQUIRED_FRACTION = 0.80
-
-#: Fraction of latency measurements that must be at or below the ceiling.
-LATENCY_FRACTION = 0.95
-
-#: Round-trip latency ceiling, in milliseconds.
-LATENCY_MS_CEILING = 100
-
-#: Average outage ceiling, in hours per 365 days.
-OUTAGE_HOURS_CEILING = 48
-
-#: Annual uptime corresponding to the outage ceiling.
-UPTIME_PCT_FLOOR = 99.45
-
-#: Minimum committed speeds for a broadband serviceable location, in Mbps.
-BSL_FLOOR_DOWN_MBPS = 100
-BSL_FLOOR_UP_MBPS = 20
-
-#: Service standard for a community anchor institution, in Mbps.
-CAI_FLOOR_DOWN_MBPS = 1000
-CAI_FLOOR_UP_MBPS = 1000
-
-PASS = "PASS"
-FAIL = "FAIL"
-NO_DATA = "NO DATA"
 
 
 class ReportError(Exception):
@@ -351,8 +333,6 @@ class Corpus:
         """
         if not self.test:
             return list(self.performance)
-
-        from bead_data.aggregate import AggregationError, aggregate_tests
 
         try:
             derived = aggregate_tests(self.test)

@@ -31,16 +31,15 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 
 from bead_data.models import PerformanceTest
-from bead_data.report import (
+from bead_data.schemas import SCHEMA_VERSION
+from bead_data.thresholds import (
     BSL_FLOOR_DOWN_MBPS,
     BSL_FLOOR_UP_MBPS,
     CAI_FLOOR_DOWN_MBPS,
     CAI_FLOOR_UP_MBPS,
+    LATENCY_MS_CEILING,
     SPEED_OF_REQUIRED_FRACTION,
 )
-from bead_data.schemas import SCHEMA_VERSION
-
-LATENCY_MS_CEILING = 100
 
 
 class AggregationError(Exception):

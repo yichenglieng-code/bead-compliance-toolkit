@@ -24,6 +24,15 @@ from __future__ import annotations
 from pathlib import Path
 
 from bead_data.report import (
+    Corpus,
+    SampleSet,
+    gather,
+    group_sample_sets,
+    in_period,
+    parse_period,
+)
+from bead_data.schemas import technology_name
+from bead_data.thresholds import (
     FAIL,
     LATENCY_FRACTION,
     LATENCY_MS_CEILING,
@@ -33,14 +42,7 @@ from bead_data.report import (
     SPEED_MEASUREMENT_FRACTION,
     SPEED_OF_REQUIRED_FRACTION,
     UPTIME_PCT_FLOOR,
-    Corpus,
-    SampleSet,
-    gather,
-    group_sample_sets,
-    in_period,
-    parse_period,
 )
-from bead_data.schemas import technology_name
 
 NAMESPACE = "bead"
 
