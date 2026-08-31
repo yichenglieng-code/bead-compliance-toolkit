@@ -252,7 +252,7 @@ binding their digests to this repository, the tagged commit, and the workflow th
 built them. A downloaded artifact can be checked independently with:
 
 ```bash
-gh attestation verify path/to/bead_data-0.2.0-py3-none-any.whl \
+gh attestation verify path/to/bead_data-0.2.1-py3-none-any.whl \
   -R yichenglieng-code/bead-compliance-toolkit
 ```
 

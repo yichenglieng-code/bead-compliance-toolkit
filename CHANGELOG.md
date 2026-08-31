@@ -10,6 +10,14 @@ to `v0`.
 
 ## Unreleased
 
+## 0.2.1 — 2026-08-31
+
+### Fixed
+
+- The GitHub Release job now checks out the annotated tag before asking the GitHub CLI
+  to verify it. Version 0.2.0's distributions and signed attestations built successfully,
+  but its release-page creation step could not verify a tag that was absent locally.
+
 ## 0.2.0 — 2026-08-31
 
 ### Added

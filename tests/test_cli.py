@@ -175,7 +175,7 @@ def test_help_and_version(run) -> None:
     assert run("--help").exit_code == EXIT_OK
     version = run("--version")
     assert version.exit_code == EXIT_OK
-    assert "0.2.0" in version.output
+    assert "0.2.1" in version.output
 
 
 def test_bad_schema_choice_is_rejected(run, data_dir) -> None:

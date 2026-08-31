@@ -34,7 +34,7 @@ from bead_data.validate import (
     validate_records,
 )
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 __all__ = [
     "FACT_KINDS",

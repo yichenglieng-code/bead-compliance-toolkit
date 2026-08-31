@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "bead-data"
-version = "0.2.0"
+version = "0.2.1"
 description = "Open, NTIA-aligned data schemas and reference tooling for BEAD broadband compliance evidence."
 readme = "README.md"
 requires-python = ">=3.11"
