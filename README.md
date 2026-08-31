@@ -20,7 +20,7 @@ tools to validate and summarize it, so **compliance evidence can be produced onc
 trusted everywhere**. Apache-2.0 licensed, no vendor lock-in, adoptable by any U.S.
 organization.
 
-> **Status: v0.1, early.** The schemas are versioned and the tooling works, but this is a
+> **Status: v0.2, early.** The schemas are versioned and the tooling works, but this is a
 > new project. Field names may change before v1.0. Feedback from people who actually file
 > BEAD reports is the most useful thing you can contribute right now — see
 > [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -242,6 +242,23 @@ a pass.
 - Outage-event records so availability can be derived rather than supplied
 - Publication to a public package registry
 - Bindings in additional languages, if there is demand for them
+
+## Release integrity
+
+Tagged releases publish a wheel, source distribution, and `SHA256SUMS` on the
+[GitHub Releases page](https://github.com/yichenglieng-code/bead-compliance-toolkit/releases).
+GitHub Actions also creates a signed build-provenance attestation for those files,
+binding their digests to this repository, the tagged commit, and the workflow that
+built them. A downloaded artifact can be checked independently with:
+
+```bash
+gh attestation verify path/to/bead_data-0.2.0-py3-none-any.whl \
+  -R yichenglieng-code/bead-compliance-toolkit
+```
+
+The attestation establishes origin and build history; it is not a claim that a
+release is free of defects. The test, conformance, and source-review gates remain
+separate.
 
 ## Documentation
 

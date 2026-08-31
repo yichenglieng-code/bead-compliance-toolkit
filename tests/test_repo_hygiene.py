@@ -173,6 +173,16 @@ def test_changelog_mentions_the_current_version() -> None:
     assert __version__ in changelog, f"CHANGELOG.md does not mention version {__version__}"
 
 
+def test_package_version_matches_public_module() -> None:
+    """Release tags, package metadata, and ``--version`` must not drift apart."""
+    import tomllib
+
+    from bead_data import __version__
+
+    metadata = tomllib.loads((REPO / "pyproject.toml").read_text(encoding="utf-8"))
+    assert metadata["project"]["version"] == __version__
+
+
 # ------------------------------------------------------------ documentation
 
 

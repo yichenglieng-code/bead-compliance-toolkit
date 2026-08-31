@@ -59,12 +59,17 @@ should say what changed for *them*, not list commits.
 Pushing a `v*` tag triggers `.github/workflows/release.yml`, which:
 
 1. Builds the sdist and wheel.
-2. Asserts the wheel contains all normative schemas. A package that installs cleanly
+2. Asserts the wheel contains all five normative schemas. A package that installs cleanly
    and cannot validate anything is worse than a failed build.
 3. Installs the wheel into a clean environment and confirms the schemas resolve from
    the package rather than a source checkout. An editable install never exercises that
    path, so nothing else catches it.
-4. Publishes to PyPI.
+4. Publishes SHA-256 checksums and signed build-provenance attestations tied to the
+   repository, workflow, tag, and commit.
+5. Creates a public GitHub Release carrying the wheel, sdist, and checksum file.
+6. Publishes to PyPI only when the repository variable `PYPI_PUBLISH` is set to `true`.
+   Until trusted publishing is configured, that job is visibly skipped rather than
+   turning an otherwise valid GitHub release red.
 
 ## PyPI, first time only
 
@@ -78,7 +83,9 @@ API token exists in this repository to leak.
    - Workflow: `release.yml`
    - Environment: `pypi`
 3. In GitHub → Settings → Environments, create an environment named `pypi`.
-4. Push the tag.
+4. In GitHub → Settings → Secrets and variables → Actions → Variables, create
+   `PYPI_PUBLISH` with value `true`.
+5. Push the tag.
 
 The distribution name is `bead-data`. Confirm it is still available before relying on
 it.
@@ -86,9 +93,10 @@ it.
 ## After releasing
 
 - [ ] Confirm the release workflow went green.
+- [ ] Download the wheel and verify its provenance with the command in `README.md`.
 - [ ] Confirm `pip install bead-data==<version>` works in a clean environment, and
       that `bead-data validate` works on an example from a fresh download.
-- [ ] Add a `## Unreleased` section back to `CHANGELOG.md`.
+- [ ] Confirm `CHANGELOG.md` has a fresh `## Unreleased` section for the next cycle.
 
 ## If a release is broken
 

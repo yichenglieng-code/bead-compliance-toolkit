@@ -10,6 +10,8 @@ to `v0`.
 
 ## Unreleased
 
+## 0.2.0 — 2026-08-31
+
 ### Added
 
 - **Sampling validation** — optional `sample_population_active_subscribers` metadata

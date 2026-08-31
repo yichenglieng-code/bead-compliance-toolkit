@@ -5,17 +5,18 @@ on:
     tags: ["v*"]
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 jobs:
   build:
     name: Build distributions
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -34,13 +35,25 @@ jobs:
           python - <<'PY'
           import glob, sys, zipfile
           wheel = glob.glob("dist/*.whl")[0]
-          found = sorted(
-              n for n in zipfile.ZipFile(wheel).namelist() if n.endswith(".schema.json")
-          )
-          for name in found:
+          found = {
+              n.split("_schemas/", 1)[1]
+              for n in zipfile.ZipFile(wheel).namelist()
+              if "_schemas/" in n and n.endswith(".schema.json")
+          }
+          expected = {
+              "baba/v0/baba_evidence.schema.json",
+              "common/v0/provenance.schema.json",
+              "location/v0/deployment_location.schema.json",
+              "performance/v0/performance_fact.schema.json",
+              "performance/v0/performance_test.schema.json",
+          }
+          for name in sorted(found):
               print(name)
-          if len(found) != 4:
-              sys.exit(f"expected 4 schemas in {wheel}, found {len(found)}")
+          if found != expected:
+              sys.exit(
+                  f"schema payload mismatch in {wheel}: "
+                  f"missing={sorted(expected - found)}, extra={sorted(found - expected)}"
+              )
           PY
 
       - name: Install the wheel in a clean environment and smoke test it
@@ -56,23 +69,60 @@ jobs:
           print("packaged schemas resolve correctly")
           PY
 
-      - uses: actions/upload-artifact@v4
+      - name: Record SHA-256 checksums
+        run: |
+          cd dist
+          sha256sum *.whl *.tar.gz > SHA256SUMS
+          cat SHA256SUMS
+
+      - name: Generate signed build provenance
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: actions/attest@v4
+        with:
+          subject-path: "dist/*"
+
+      - uses: actions/upload-artifact@v7
         with:
           name: distributions
           path: dist/
 
+  github-release:
+    name: Publish GitHub release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          name: distributions
+          path: dist/
+
+      - name: Create release with verified build artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: >-
+          gh release create "$GITHUB_REF_NAME" dist/* --verify-tag
+          --title "$GITHUB_REF_NAME" --notes-from-tag
+
   publish:
     name: Publish to PyPI
+    if: startsWith(github.ref, 'refs/tags/v') && vars.PYPI_PUBLISH == 'true'
     needs: build
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
       id-token: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: distributions
           path: dist/
+
+      - name: Keep only Python distributions in the upload directory
+        run: rm dist/SHA256SUMS
 
       # Trusted publishing: no API token is stored in this repository. Configure the
       # publisher once at pypi.org/manage/account/publishing/ against this repo,
